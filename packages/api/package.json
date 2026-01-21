@@ -1,0 +1,16 @@
+{
+  "name": "@repo/api",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "convex dev",
+    "build": "tsc",
+    "lint": "biome check ."
+  },
+  "devDependencies": {
+    "@repo/config": "workspace:*",
+    "convex": "^1.31.5",
+    "typescript": "^5",
+    "@types/node": "^25"
+  }
+}

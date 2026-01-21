@@ -1,0 +1,7 @@
+{
+  "extends": "@repo/config/tsconfig.react.json",
+  "compilerOptions": {
+    "baseUrl": "."
+  },
+  "include": ["src/**/*", "vitest.config.ts", ".storybook/**/*"]
+}

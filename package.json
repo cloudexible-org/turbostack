@@ -1,0 +1,31 @@
+{
+  "name": "turbostack",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev --ui tui",
+    "lint": "turbo lint",
+    "format": "biome format . --write",
+    "check": "biome check .",
+    "storybook": "pnpm --filter @repo/ui storybook",
+    "setup:envs": "node scripts/setup.mjs"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "latest",
+    "turbo": "latest",
+    "turbo-ignore": "^2.7.5",
+    "typescript": "latest"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@clerk/shared",
+      "esbuild",
+      "sharp"
+    ]
+  },
+  "packageManager": "pnpm@10.28.1",
+  "engines": {
+    "node": ">=20"
+  }
+}
