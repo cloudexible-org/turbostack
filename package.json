@@ -12,10 +12,10 @@
     "setup:envs": "node scripts/setup.mjs"
   },
   "devDependencies": {
-    "@biomejs/biome": "latest",
+    "@biomejs/biome": "catalog:",
     "turbo": "latest",
     "turbo-ignore": "^2.7.5",
-    "typescript": "latest"
+    "typescript": "catalog:"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

@@ -5,12 +5,13 @@
   "scripts": {
     "dev": "convex dev",
     "build": "tsc",
-    "lint": "biome check ."
+    "lint": "biome check .",
+    "test": "echo \"No tests for API yet\""
   },
   "devDependencies": {
     "@repo/config": "workspace:*",
-    "convex": "^1.31.5",
-    "typescript": "^5",
-    "@types/node": "^25"
+    "convex": "catalog:",
+    "typescript": "catalog:",
+    "@types/node": "catalog:"
   }
 }
