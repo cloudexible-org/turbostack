@@ -1,14 +1,14 @@
-# Turbostack: Convex + Next.js + Expo + Clerk + Turborepo + Vercel
+# Turbostack: Convex + Next.js + Vite + Clerk + Turborepo + Vercel
 
 ![Turbostack Banner](./docs/assets/banner.png)
 
-A premium, production-ready monorepo template for building high-performance, type-safe full-stack applications that run everywhere: Web, iOS, and Android.
+A premium, production-ready monorepo template for building high-performance, type-safe full-stack applications. Includes a Next.js marketing site and a Vite-powered app ready for native deployment via Capacitor.
 
 ## ✨ Features
 
 - 🏎️ **Turborepo** - High-performance build system for JavaScript/TypeScript monorepos.
 - 🎨 **Modern UI** - **Tailwind CSS v4** with **shadcn/ui** and **Base UI** primitives. No Radix UI.
-- 📱 **Cross-Platform** - Shared logic and components across **Next.js** (Web) and **Expo** (Mobile).
+- 📱 **Cross-Platform** - Shared logic and components across **Next.js** (Marketing) and **Vite React** (App), with **Capacitor** for native deployments.
 - ⚡ **Reactive Backend** - **Convex** for a 100% type-safe, real-time backend and database.
 - 🔐 **Secure Auth** - **Clerk** integration for robust user management and authentication.
 - 🛠️ **Unified Toolchain** - **Biome** for lightning-fast linting and formatting.
@@ -19,8 +19,8 @@ A premium, production-ready monorepo template for building high-performance, typ
 - **Monorepo:** [Turborepo](https://turbo.build/)
 - **Package Manager:** [pnpm](https://pnpm.io/)
 - **Backend:** [Convex](https://convex.dev/)
-- **Web:** [Next.js 15](https://nextjs.org/) (App Router)
-- **Mobile:** [Expo](https://expo.dev/) (React Native)
+- **Marketing (www):** [Next.js 16](https://nextjs.org/) (App Router)
+- **App:** [Vite](https://vite.dev/) + [React](https://react.dev/) (SPA, Capacitor-ready)
 - **Auth:** [Clerk](https://clerk.com/)
 - **Toolchain:** [Biome](https://biomejs.dev/)
 - **Styling:** [Tailwind CSS v4](https://tailwindcss.com/), [shadcn/ui](https://ui.shadcn.com/), [Base UI](https://base-ui.com/)
@@ -31,8 +31,8 @@ A premium, production-ready monorepo template for building high-performance, typ
 
 ```text
 ├── apps/
-│   ├── web/          # Next.js web application
-│   ├── native/       # Expo mobile application
+│   ├── www/          # Next.js marketing site & landing pages
+│   ├── app/          # Vite React app (Capacitor-ready, runs on port 5173)
 │   └── e2e/          # Playwright end-to-end tests
 ├── packages/
 │   ├── api/          # Convex backend, schema, and shared business logic

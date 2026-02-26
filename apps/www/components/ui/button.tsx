@@ -1,4 +1,7 @@
-import { Button as BaseButton } from "@base-ui/react/button";
+import {
+  Button as BaseButton,
+  type ButtonProps as BaseButtonProps,
+} from "@base-ui/react/button";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
 import { cn } from "@/lib/utils";
@@ -36,9 +39,7 @@ const buttonVariants = cva(
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
-  render?:
-    | React.ReactElement<any, any>
-    | ((props: any) => React.ReactElement<any, any>);
+  render?: BaseButtonProps["render"];
   nativeButton?: boolean;
 }
 

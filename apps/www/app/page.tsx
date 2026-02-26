@@ -8,7 +8,6 @@ import {
   UserButton,
 } from "@clerk/nextjs";
 import {
-  BarChart3,
   Code2,
   Database,
   Globe,
@@ -108,8 +107,8 @@ export default function Home(): React.ReactNode {
             The Modern Monorepo
           </Typography>
           <Typography variant="lead" className="max-w-2xl leading-relaxed">
-            The ultimate type-safe, full-stack monorepo for Web and Mobile.
-            Turbostack is powered by the best-in-class tools for 2026.
+            The ultimate type-safe, full-stack monorepo for Web, App, and
+            Native. Turbostack is powered by the best-in-class tools for 2026.
           </Typography>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Button
@@ -144,13 +143,13 @@ export default function Home(): React.ReactNode {
           />
           <FeatureCard
             icon={<Globe className="h-6 w-6" />}
-            title="Next.js Web"
-            description="The React framework for the web. Server Components, Routing, and Optimization."
+            title="Next.js Marketing"
+            description="Landing pages and marketing site powered by the React framework. Server Components and SEO built-in."
           />
           <FeatureCard
             icon={<Smartphone className="h-6 w-6" />}
-            title="Expo Native"
-            description="Build native mobile apps for iOS and Android using React Native."
+            title="Vite App"
+            description="Lightning-fast SPA with Vite + React. Capacitor-ready for native iOS and Android deployments."
           />
           <FeatureCard
             icon={<Zap className="h-6 w-6" />}

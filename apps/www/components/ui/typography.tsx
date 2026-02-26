@@ -44,23 +44,24 @@ export interface TypographyProps
   as?: TypographyElement;
 }
 
+const variantElementMap: Record<string, TypographyElement> = {
+  h1: "h1",
+  h2: "h2",
+  h3: "h3",
+  h4: "h4",
+  inlineCode: "code",
+  blockquote: "blockquote",
+};
+
 const Typography = React.forwardRef<HTMLElement, TypographyProps>(
   ({ className, variant, as, ...props }, ref) => {
-    const Component =
-      as ||
-      (variant === "inlineCode"
-        ? "code"
-        : variant === "muted" ||
-            variant === "small" ||
-            variant === "large" ||
-            variant === "lead"
-          ? "p"
-          : (variant as any) || "p");
+    const Component: TypographyElement =
+      as || (variant ? variantElementMap[variant] : undefined) || "p";
 
     return (
       <Component
         className={cn(typographyVariants({ variant, className }))}
-        ref={ref as any}
+        ref={ref as React.Ref<never>}
         {...props}
       />
     );

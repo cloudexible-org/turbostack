@@ -22,11 +22,11 @@ This document defines the core standards and automated workflows that any AI age
 * **Inference:** Allow TypeScript to infer types where obvious, but explicitly define types for function parameters, return values, and complex state objects.
 
 ## 4. Testing & Quality Assurance
-* **Page Objects Pattern:** Whenever a new page is created in `apps/web` or a significant UI component is added to `packages/ui`, you must:
+* **Page Objects Pattern:** Whenever a new page is created in `apps/app` or a significant UI component is added to `packages/ui`, you must:
     1.  Update or create the corresponding file in `e2e/page-objects/`.
     2.  Ensure selectors are resilient (prefer data-attributes like `data-testid` over CSS classes).
-* **E2E Coverage:** Ensure that new features are accompanied by a Playwright test script utilizing the updated page objects.
-* **Unit Tests:** New utility functions or business logic in `packages/api` or `apps/web` must have a corresponding `.test.ts` file for Vite.
+* **E2E / Integration Tests:** The `apps/e2e` directory targets the Vite app (`apps/app`) on `http://localhost:5173`. Ensure that new features are accompanied by a Playwright test script utilizing the updated page objects.
+* **Unit Tests:** New utility functions or business logic in `packages/api` or `apps/app` must have a corresponding `.test.ts` file for Vitest.
 
 ## 5. Styling & Components
 * **Tailwind v4:** Use the CSS-first approach. Do not use deprecated Tailwind v3 configuration patterns.
