@@ -14,7 +14,7 @@
   "devDependencies": {
     "@biomejs/biome": "catalog:",
     "turbo": "latest",
-    "turbo-ignore": "^2.8.17",
+    "turbo-ignore": "^2.9.14",
     "typescript": "catalog:"
   },
   "pnpm": {

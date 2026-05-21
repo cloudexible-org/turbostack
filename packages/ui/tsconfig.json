@@ -1,7 +1,7 @@
 {
   "extends": "@repo/config/react-library.json",
   "compilerOptions": {
-    "baseUrl": "."
+    "allowArbitraryExtensions": true
   },
   "include": ["src/**/*", "vitest.config.ts", ".storybook/**/*"]
 }
