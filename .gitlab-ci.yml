@@ -16,8 +16,10 @@ deploy:
     # 2. Wait for the Convex backend to be healthy
     - |
       echo "Waiting for Convex backend to be healthy..."
-      until [ "$(docker inspect -f '{{.State.Health.Status}}' $(docker compose ps -q convex-backend))" = "healthy" ]; do
-        sleep 2
+      # Use the container name directly since we control it in docker-compose.yml
+      until [ "$(docker inspect -f '{{.State.Health.Status}}' convex-backend 2>/dev/null)" = "healthy" ]; do
+        echo "Waiting..."
+        sleep 5
       done
 
     # 3. Generate the admin key from the running convex-backend container

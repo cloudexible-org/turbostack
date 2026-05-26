@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - **TypeScript Error in Convex Auth:** Added a local declaration for `process` in `packages/api/convex/auth.config.ts` to resolve `Cannot find name 'process'` compiler errors during local development check.
+- **GitLab CI/CD Container Health Check:** Simplified the "wait for healthy" loop in `.gitlab-ci.yml` to directly reference the container name `convex-backend` instead of dynamically calling `docker compose ps -q`, resolving an issue where `docker inspect` failed with an empty argument error.
 
 ## [2.1.0] - 2026-03-17
 
