@@ -41,6 +41,6 @@ deploy:
     - |
       docker compose build \
         --build-arg NEXT_PUBLIC_CONVEX_URL="http://turbostack.tailfad20b.ts.net:3210" \
-        --build-arg NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY" \
+        --build-arg NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:-}" \
         nextjs-app
     - docker compose up -d nextjs-app

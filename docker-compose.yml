@@ -6,7 +6,7 @@ services:
     container_name: tailscale
     hostname: turbostack
     environment:
-      - TS_AUTHKEY=${TS_AUTHKEY}
+      - TS_AUTHKEY=${TS_AUTHKEY:-}
       - TS_STATE_DIR=/var/lib/tailscale
       - TS_EXTRA_ARGS=--advertise-tags=tag:server
       - TS_USERSPACE=true # Safe fallback for Windows/WSL Docker Desktop where /dev/net/tun is unavailable
@@ -55,15 +55,15 @@ services:
       dockerfile: apps/www/Dockerfile
       args:
         - NEXT_PUBLIC_CONVEX_URL=http://turbostack.tailfad20b.ts.net:3210
-        - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+        - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:-}
     container_name: nextjs-app
     # Run in Tailscale's network namespace so it's only accessible via Tailscale on port 443
     network_mode: service:tailscale
     environment:
       - PORT=3000
       - NEXT_PUBLIC_CONVEX_URL=http://turbostack.tailfad20b.ts.net:3210
-      - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
-      - CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
+      - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:-}
+      - CLERK_SECRET_KEY=${CLERK_SECRET_KEY:-}
       - NODE_ENV=production
     depends_on:
       - tailscale
