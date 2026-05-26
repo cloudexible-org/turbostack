@@ -1,0 +1,46 @@
+stages:
+  - deploy
+
+deploy:
+  stage: deploy
+  image: docker:latest
+  variables:
+    # Assuming GitLab Runner is configured to mount the host's Docker socket (/var/run/docker.sock)
+    # so commands build and deploy directly on the host Docker daemon.
+    # No docker:dind service is used, targeting the same Docker host running GitLab itself.
+    GIT_SUBMODULE_STRATEGY: recursive
+  script:
+    # 1. Build and start Tailscale and the Convex backend
+    - docker compose up -d tailscale convex-backend
+
+    # 2. Wait for the Convex backend to be healthy
+    - |
+      echo "Waiting for Convex backend to be healthy..."
+      until [ "$(docker inspect -f '{{.State.Health.Status}}' $(docker compose ps -q convex-backend))" = "healthy" ]; do
+        sleep 2
+      done
+
+    # 3. Generate the admin key from the running convex-backend container
+    - CONVEX_ADMIN_KEY=$(docker compose exec -T convex-backend ./generate_admin_key.sh)
+    - echo "Admin key successfully generated."
+
+    # 4. Deploy Convex functions using a temporary node container on the same network
+    # We use corepack to automatically use the workspace's pinned pnpm version
+    - |
+      docker run --rm \
+        --network ${COMPOSE_PROJECT_NAME:-turbostack}_turbostack-network \
+        -v "$(pwd)":/app \
+        -w /app \
+        -e CONVEX_SELF_HOSTED_URL="http://tailscale:3210" \
+        -e CONVEX_SELF_HOSTED_ADMIN_KEY="$CONVEX_ADMIN_KEY" \
+        node:20-alpine \
+        sh -c "corepack enable && pnpm install --frozen-lockfile && pnpm --filter @repo/api convex deploy"
+
+    # 5. Build and start the Next.js app container
+    # Build arguments inject compile-time client variables
+    - |
+      docker compose build \
+        --build-arg NEXT_PUBLIC_CONVEX_URL="http://turbostack.tailfad20b.ts.net:3210" \
+        --build-arg NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY" \
+        nextjs-app
+    - docker compose up -d nextjs-app

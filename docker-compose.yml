@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  tailscale:
+    image: tailscale/tailscale:latest
+    container_name: tailscale
+    hostname: turbostack
+    environment:
+      - TS_AUTHKEY=${TS_AUTHKEY}
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_EXTRA_ARGS=--advertise-tags=tag:server
+      - TS_USERSPACE=true # Safe fallback for Windows/WSL Docker Desktop where /dev/net/tun is unavailable
+    volumes:
+      - tailscale-state:/var/lib/tailscale
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    networks:
+      - turbostack-network
+    restart: unless-stopped
+    post_start:
+      # Wait for Tailscale to be authenticated, then set up the serve configuration
+      # Next.js will be served on HTTPS (port 443) at turbostack.tailfad20b.ts.net
+      # Convex backend will be exposed as a raw TCP service on port 3210
+      - command: sh -c "while ! tailscale status; do sleep 1; done && tailscale serve 3000 && tailscale serve --tcp=3210 tcp://localhost:3210"
+
+  convex-backend:
+    image: ghcr.io/get-convex/convex-backend:latest
+    container_name: convex-backend
+    stop_grace_period: 10s
+    stop_signal: SIGINT
+    # Run in Tailscale's network namespace to share the tailnet IP and ports
+    network_mode: service:tailscale
+    volumes:
+      - convex-data:/convex/data
+    environment:
+      - APPLICATION_MAX_CONCURRENT_MUTATIONS=16
+      - APPLICATION_MAX_CONCURRENT_NODE_ACTIONS=16
+      - APPLICATION_MAX_CONCURRENT_QUERIES=16
+      - APPLICATION_MAX_CONCURRENT_V8_ACTIONS=16
+      - CONVEX_CLOUD_ORIGIN=http://turbostack.tailfad20b.ts.net:3210
+      - CONVEX_SITE_ORIGIN=http://turbostack.tailfad20b.ts.net:3211
+      - INSTANCE_NAME=turbostack
+      - INSTANCE_SECRET=${CONVEX_INSTANCE_SECRET:-turbostackdevelopmentsecretkey32char}
+      - RUST_LOG=info
+      - DISABLE_METRICS_ENDPOINT=true
+    depends_on:
+      - tailscale
+    restart: unless-stopped
+
+  nextjs-app:
+    image: turbostack-nextjs-app:latest
+    build:
+      context: .
+      dockerfile: apps/www/Dockerfile
+      args:
+        - NEXT_PUBLIC_CONVEX_URL=http://turbostack.tailfad20b.ts.net:3210
+        - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+    container_name: nextjs-app
+    # Run in Tailscale's network namespace so it's only accessible via Tailscale on port 443
+    network_mode: service:tailscale
+    environment:
+      - PORT=3000
+      - NEXT_PUBLIC_CONVEX_URL=http://turbostack.tailfad20b.ts.net:3210
+      - NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=${NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+      - CLERK_SECRET_KEY=${CLERK_SECRET_KEY}
+      - NODE_ENV=production
+    depends_on:
+      - tailscale
+      - convex-backend
+    restart: unless-stopped
+
+networks:
+  turbostack-network:
+    driver: bridge
+
+volumes:
+  tailscale-state:
+  convex-data:

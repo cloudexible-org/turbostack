@@ -28,6 +28,8 @@ const GithubIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 export default function Home(): React.ReactNode {
+  const hasClerk = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
       {/* Navigation Bar */}
@@ -48,39 +50,43 @@ export default function Home(): React.ReactNode {
 
           <div className="flex items-center gap-4">
             <ThemeToggle />
-            <div className="h-6 w-px bg-border/50 hidden sm:block" />
-            <Show when="signed-out">
-              <div className="flex items-center gap-3">
-                <SignInButton mode="modal">
-                  <Button variant="ghost" size="sm" className="font-medium">
-                    Sign In
-                  </Button>
-                </SignInButton>
-                <SignUpButton mode="modal">
-                  <Button size="sm" className="rounded-full px-6">
-                    Get Started
-                  </Button>
-                </SignUpButton>
-              </div>
-            </Show>
-            <Show when="signed-in">
-              <div className="flex items-center gap-4">
-                <Typography
-                  variant="small"
-                  className="hidden text-muted-foreground sm:inline-block font-medium"
-                >
-                  Welcome back
-                </Typography>
-                <UserButton
-                  appearance={{
-                    elements: {
-                      avatarBox:
-                        "h-9 w-9 border border-border shadow-sm hover:ring-2 hover:ring-primary/20 transition-all",
-                    },
-                  }}
-                />
-              </div>
-            </Show>
+            {hasClerk && (
+              <>
+                <div className="h-6 w-px bg-border/50 hidden sm:block" />
+                <Show when="signed-out">
+                  <div className="flex items-center gap-3">
+                    <SignInButton mode="modal">
+                      <Button variant="ghost" size="sm" className="font-medium">
+                        Sign In
+                      </Button>
+                    </SignInButton>
+                    <SignUpButton mode="modal">
+                      <Button size="sm" className="rounded-full px-6">
+                        Get Started
+                      </Button>
+                    </SignUpButton>
+                  </div>
+                </Show>
+                <Show when="signed-in">
+                  <div className="flex items-center gap-4">
+                    <Typography
+                      variant="small"
+                      className="hidden text-muted-foreground sm:inline-block font-medium"
+                    >
+                      Welcome back
+                    </Typography>
+                    <UserButton
+                      appearance={{
+                        elements: {
+                          avatarBox:
+                            "h-9 w-9 border border-border shadow-sm hover:ring-2 hover:ring-primary/20 transition-all",
+                        },
+                      }}
+                    />
+                  </div>
+                </Show>
+              </>
+            )}
           </div>
         </div>
       </nav>

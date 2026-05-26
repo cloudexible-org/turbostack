@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2026-05-26
+
+### Added
+- **GitLab CI/CD Setup:** Added `.gitlab-ci.yml` configuring automated deployment to a self-hosted Docker runner.
+- **Docker Compose Stack:** Added `docker-compose.yml` defining the Next.js app (`apps/www`), a local self-hosted Convex backend (`convex-backend`), and a Tailscale sidecar.
+- **Next.js Standalone Dockerfile:** Added `apps/www/Dockerfile` using multi-stage builds and Next.js standalone mode.
+- **Tailscale Sidecar configuration:** Configured automated Tailscale serving for the Next.js app on port 443 and TCP port forwarding to Convex backend on port 3210.
+- **Convex Standalone Mode:** Updated `apps/www/next.config.ts` to output in standalone mode for optimized Docker builds.
+
+### Changed
+- **Optional Clerk Authentication:** Configured Clerk authentication to be completely optional. When `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` is not defined, Clerk providers and components will be bypassed, rendering only a standard non-authenticated Convex UI.
+
+### Fixed
+- **TypeScript Error in Convex Auth:** Added a local declaration for `process` in `packages/api/convex/auth.config.ts` to resolve `Cannot find name 'process'` compiler errors during local development check.
+
 ## [2.1.0] - 2026-03-17
 
 ### Changed
