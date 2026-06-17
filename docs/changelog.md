@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2026-06-17
+
+### Added
+- **CLAUDE.md symlink:** Added `CLAUDE.md` as a symlink to `AGENTS.md` so Claude Code automatically picks up agent instructions from the same file.
+
+### Changed
+- **Dependency Upgrade:** Bumped all monorepo dependencies to latest versions — `@biomejs/biome` (2.4.15 → 2.5.0), `convex` (1.39.1 → 1.41.0), `react`/`react-dom` (19.2.6 → 19.2.7), `tailwindcss`/`@tailwindcss/postcss` (4.3.0 → 4.3.1), `storybook` and all addons (10.4.0 → 10.4.6), `@clerk/nextjs` (7.3.7 → 7.5.3), `lucide-react` (1.16.0 → 1.20.0), `next` (16.2.6 → 16.2.9), `vite` (8.0.13 → 8.0.16), `playwright`/`@playwright/test` (1.60.0 → 1.61.0), `vitest` and related (4.1.7 → 4.1.9), and other minor bumps.
+
 ## [2.2.0] - 2026-05-26
 
 ### Added
