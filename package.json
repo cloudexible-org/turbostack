@@ -9,6 +9,7 @@
     "dev": "turbo dev --ui tui",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
+    "test": "turbo test --filter=!e2e",
     "format": "biome format . --write",
     "check": "biome check .",
     "storybook": "pnpm --filter @repo/ui storybook",
