@@ -1,0 +1,18 @@
+# Git hooks managed by lefthook.
+# Enforces the standards documented in CLAUDE.md:
+#   - Biome runs on staged files before every commit (section 5).
+#   - commitlint enforces Conventional Commits on the message (section 6).
+# Hooks are installed automatically via the root "prepare" script (lefthook install).
+
+pre-commit:
+  parallel: true
+  commands:
+    biome:
+      glob: "*.{js,jsx,ts,tsx,json,jsonc,css}"
+      run: pnpm exec biome check --write --files-ignore-unknown=true {staged_files}
+      stage_fixed: true
+
+commit-msg:
+  commands:
+    commitlint:
+      run: pnpm exec commitlint --edit {1}

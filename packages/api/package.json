@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "convex dev",
     "build": "tsc",
+    "typecheck": "tsc --noEmit",
     "lint": "biome check .",
     "test": "echo \"No tests for API yet\""
   },
