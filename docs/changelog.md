@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Git hooks (lefthook + commitlint):** Added `lefthook.yml` and `commitlint.config.mjs` to enforce the standards already documented in `CLAUDE.md` — Biome runs on staged files at pre-commit, and commit messages are validated against Conventional Commits at commit-msg. Hooks install automatically via the root `prepare` script. *Why:* the rules were aspirational; nothing enforced them.
 - **`only-allow pnpm` guard:** Added a `preinstall` script so `npm install` / `yarn` are rejected, enforcing the pnpm-only policy from `CLAUDE.md`.
 - **Node version pinning:** Added `.nvmrc` and `.node-version` pinned to `24`.
+- **GitHub Actions validation CI:** Added `.github/workflows/ci.yml` running `lint → typecheck` on pushes to `main` and on pull requests. No tests and no build/deploy — deployment stays with Vercel, and the existing `.gitlab-ci.yml` (self-hosted home server) is untouched. Tests are intentionally excluded from CI: the `@repo/ui` unit suite runs Storybook stories in a real browser, so it stays a local-only `pnpm test`.
+- **Root `pnpm test` script:** Added `turbo test --filter=!e2e` so the default test run covers unit tests while excluding the Playwright e2e package (run that separately via `pnpm --filter e2e test`).
 
 ### Changed
 - **Bumped `engines.node` to `>=24`** (was `>=20`) to align with the toolchain and the planned Portless requirement.
