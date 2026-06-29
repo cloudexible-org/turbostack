@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **`typecheck` Turbo task:** Added a dedicated `tsc --noEmit` (`tsc -b` for the Vite app) `typecheck` script to `app`, `www`, `@repo/api`, and `@repo/ui`, a `typecheck` task in `turbo.json`, and a root `pnpm typecheck` passthrough — so type errors surface independently instead of only at build time.
+- **Git hooks (lefthook + commitlint):** Added `lefthook.yml` and `commitlint.config.mjs` to enforce the standards already documented in `CLAUDE.md` — Biome runs on staged files at pre-commit, and commit messages are validated against Conventional Commits at commit-msg. Hooks install automatically via the root `prepare` script. *Why:* the rules were aspirational; nothing enforced them.
+- **`only-allow pnpm` guard:** Added a `preinstall` script so `npm install` / `yarn` are rejected, enforcing the pnpm-only policy from `CLAUDE.md`.
+- **Node version pinning:** Added `.nvmrc` and `.node-version` pinned to `24`.
+
+### Changed
+- **Bumped `engines.node` to `>=24`** (was `>=20`) to align with the toolchain and the planned Portless requirement.
+
+### Fixed
+- **Biome config drift:** Migrated `biome.json` to the installed `2.5.0` schema (was pinned to `2.4.15`) and replaced the deprecated `linter.rules.recommended: true` with `preset: "recommended"`. Excluded static `*.svg` assets from linting — the `noSvgWithoutTitle` a11y rule is meant for inline JSX, not vendored image files, and was firing on framework boilerplate once the config deserialized cleanly.
+
 ## [2.3.0] - 2026-06-17
 
 ### Added

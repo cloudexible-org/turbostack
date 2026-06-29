@@ -3,9 +3,12 @@
   "version": "2.2.0",
   "private": true,
   "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "prepare": "lefthook install",
     "build": "turbo build",
     "dev": "turbo dev --ui tui",
     "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
     "format": "biome format . --write",
     "check": "biome check .",
     "storybook": "pnpm --filter @repo/ui storybook",
@@ -13,6 +16,9 @@
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",
+    "@commitlint/cli": "^21.1.0",
+    "@commitlint/config-conventional": "^21.1.0",
+    "lefthook": "^2.1.9",
     "turbo": "latest",
     "turbo-ignore": "^2.9.18",
     "typescript": "catalog:"
@@ -26,6 +32,6 @@
   },
   "packageManager": "pnpm@10.28.1",
   "engines": {
-    "node": ">=20"
+    "node": ">=24"
   }
 }
