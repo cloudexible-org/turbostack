@@ -1,9 +1,10 @@
+import { AnalyticsProvider } from "@repo/analytics";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
-// Validate environment variables at startup (see ./env.ts).
-import "./env";
 import App from "./App.tsx";
+// Validates environment variables at startup (see ./env.ts).
+import { env } from "./env";
 
 // Register service worker
 if ("serviceWorker" in navigator) {
@@ -26,6 +27,11 @@ if (!rootElement) {
 
 createRoot(rootElement).render(
   <StrictMode>
-    <App />
+    <AnalyticsProvider
+      apiKey={env.VITE_POSTHOG_KEY}
+      apiHost={env.VITE_POSTHOG_HOST}
+    >
+      <App />
+    </AnalyticsProvider>
   </StrictMode>,
 );

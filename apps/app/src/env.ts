@@ -16,6 +16,9 @@ export const env = createEnv({
   client: {
     VITE_CONVEX_URL: z.url().optional(),
     VITE_CLERK_PUBLISHABLE_KEY: z.string().min(1).optional(),
+    // PostHog analytics — provider is skipped entirely when the key is absent.
+    VITE_POSTHOG_KEY: z.string().min(1).optional(),
+    VITE_POSTHOG_HOST: z.url().optional(),
   },
   runtimeEnv: import.meta.env,
   emptyStringAsUndefined: true,

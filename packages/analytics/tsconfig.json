@@ -1,0 +1,7 @@
+{
+  "extends": "@repo/config/react-library.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": ["src/**/*"]
+}

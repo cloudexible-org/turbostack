@@ -1,7 +1,9 @@
+import { AnalyticsProvider } from "@repo/analytics";
 import { Analytics } from "@vercel/analytics/react";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
+import { env } from "@/env";
 import { ConvexClientProvider } from "./ConvexClientProvider";
 import "./globals.css";
 
@@ -36,7 +38,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <ConvexClientProvider>{children}</ConvexClientProvider>
+          <AnalyticsProvider
+            apiKey={env.NEXT_PUBLIC_POSTHOG_KEY}
+            apiHost={env.NEXT_PUBLIC_POSTHOG_HOST}
+          >
+            <ConvexClientProvider>{children}</ConvexClientProvider>
+          </AnalyticsProvider>
           <Analytics />
         </ThemeProvider>
       </body>
