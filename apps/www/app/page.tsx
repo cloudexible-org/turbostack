@@ -14,6 +14,7 @@ import {
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/ui/typography";
+import { env } from "@/env";
 
 const GithubIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -28,7 +29,7 @@ const GithubIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 export default function Home(): React.ReactNode {
-  const hasClerk = !!process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+  const hasClerk = !!env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">

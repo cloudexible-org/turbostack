@@ -13,8 +13,10 @@
   "dependencies": {
     "@repo/api": "workspace:*",
     "@repo/ui": "workspace:*",
+    "@t3-oss/env-core": "^0.13.11",
     "react": "catalog:",
-    "react-dom": "catalog:"
+    "react-dom": "catalog:",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@repo/config": "workspace:*",

@@ -1,6 +1,8 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
+// Validate environment variables at startup (see ./env.ts).
+import "./env";
 import App from "./App.tsx";
 
 // Register service worker

@@ -1,8 +1,8 @@
 import { clerkMiddleware } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { env } from "@/env";
 
-export default process.env.CLERK_SECRET_KEY &&
-process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+export default env.CLERK_SECRET_KEY && env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
   ? clerkMiddleware()
   : () => NextResponse.next();
 
