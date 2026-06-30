@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [3.0.2] - 2026-06-29
 
 ### Fixed
 - **Clerk truly optional in Convex auth config:** `packages/api/convex/auth.config.ts` now only registers the Clerk auth provider when `CLERK_JWT_ISSUER_DOMAIN` is set; otherwise `providers` is empty and Convex deploys/runs without auth. Previously the provider always referenced the env var, so `convex deploy` failed ("environment variable CLERK_JWT_ISSUER_DOMAIN is used in auth config file but its value was not set") on any deployment without Clerk configured — e.g. Vercel preview deployments. This matches the app layer, where Clerk is already bypassed when unset.
