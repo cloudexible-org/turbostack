@@ -10,8 +10,8 @@
     "lint": "biome check ."
   },
   "dependencies": {
-    "@base-ui/react": "^1.5.0",
-    "@clerk/nextjs": "^7.5.3",
+    "@base-ui/react": "^1.6.0",
+    "@clerk/nextjs": "^7.5.10",
     "@repo/analytics": "workspace:*",
     "@repo/api": "workspace:*",
     "@repo/ui": "workspace:*",
@@ -19,7 +19,7 @@
     "@vercel/analytics": "^2.0.1",
     "class-variance-authority": "^0.7.1",
     "convex": "catalog:",
-    "lucide-react": "^1.20.0",
+    "lucide-react": "^1.22.0",
     "next": "^16.2.9",
     "next-themes": "^0.4.6",
     "react": "catalog:",
