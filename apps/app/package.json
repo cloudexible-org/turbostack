@@ -29,6 +29,6 @@
     "postcss": "catalog:",
     "tailwindcss": "catalog:",
     "typescript": "catalog:",
-    "vite": "^8.0.16"
+    "vite": "^8.1.0"
   }
 }
