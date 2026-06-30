@@ -1,7 +1,7 @@
 {
   "name": "app",
   "private": true,
-  "version": "3.0.0",
+  "version": "3.0.1",
   "type": "module",
   "scripts": {
     "dev": "portless app.turbostack --app-port 5173 vite",
