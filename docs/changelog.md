@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Bumped `engines.node` to `>=24`** (was `>=20`) to align with the toolchain and the planned Portless requirement.
 
 ### Fixed
+- **Convex deploy wrapper for the Vite app:** Added `apps/app/vercel.json` mirroring the Next app's — `convex deploy --cmd "turbo build --filter=app"` with `--cmd-url-env-var-name VITE_CONVEX_URL` and `turbo-ignore app`. Previously only `apps/www` had a deploy wrapper, so a Vite app connected to Vercel ran a plain `vite build` and silently never deployed its Convex backend. Requires `CONVEX_DEPLOY_KEY` to be set in the Vercel project.
 - **Biome config drift:** Migrated `biome.json` to the installed `2.5.0` schema (was pinned to `2.4.15`) and replaced the deprecated `linter.rules.recommended: true` with `preset: "recommended"`. Excluded static `*.svg` assets from linting — the `noSvgWithoutTitle` a11y rule is meant for inline JSX, not vendored image files, and was firing on framework boilerplate once the config deserialized cleanly.
 
 ## [2.3.0] - 2026-06-17
