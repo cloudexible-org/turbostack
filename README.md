@@ -10,9 +10,10 @@ A premium, production-ready monorepo template for building high-performance, typ
 - 🎨 **Modern UI** - **Tailwind CSS v4** with **shadcn/ui** and **Base UI** primitives. No Radix UI.
 - 📱 **Cross-Platform** - Shared logic and components across **Next.js** (Marketing) and **Vite React** (App), with **Capacitor** for native deployments.
 - ⚡ **Reactive Backend** - **Convex** for a 100% type-safe, real-time backend and database.
-- 🔐 **Secure Auth** - **Clerk** integration for robust user management and authentication.
+- 🔐 **Optional Auth** - **Clerk** integration for user management — fully optional; the stack runs auth-free when Clerk env vars are unset.
 - 🛠️ **Unified Toolchain** - **Biome** for lightning-fast linting and formatting.
-- 📈 **Insights** - **Vercel Analytics** integrated and ready for production.
+- 📈 **Analytics** - **Vercel Analytics** plus a key-gated **PostHog** package (`@repo/analytics`) for product analytics.
+- 🧰 **DX & Safety** - Typed/validated env (`@t3-oss/env`), Portless named `.localhost` dev URLs, git hooks (Biome + commitlint), and GitHub Actions CI.
 
 ## 🛠️ Tech Stack
 
@@ -24,8 +25,8 @@ A premium, production-ready monorepo template for building high-performance, typ
 - **Auth:** [Clerk](https://clerk.com/)
 - **Toolchain:** [Biome](https://biomejs.dev/)
 - **Styling:** [Tailwind CSS v4](https://tailwindcss.com/), [shadcn/ui](https://ui.shadcn.com/), [Base UI](https://base-ui.com/)
-- **Analytics:** [Vercel Analytics](https://vercel.com/analytics)
-- **Testing:** [Playwright](https://playwright.dev/) (E2E), [Vite](https://vitest.dev/) (Unit)
+- **Analytics:** [Vercel Analytics](https://vercel.com/analytics) + [PostHog](https://posthog.com/)
+- **Testing:** [Playwright](https://playwright.dev/) (E2E), [Vitest](https://vitest.dev/) + Storybook (component/unit)
 
 ## 📁 Project Structure
 
@@ -37,6 +38,7 @@ A premium, production-ready monorepo template for building high-performance, typ
 ├── packages/
 │   ├── api/          # Convex backend, schema, and shared business logic
 │   ├── ui/           # Shared high-performance UI components
+│   ├── analytics/    # Key-gated PostHog analytics provider
 │   └── config/       # Shared TypeScript & Tailwind configurations
 └── docs/             # Project documentation and changelogs
 ```
@@ -45,10 +47,10 @@ A premium, production-ready monorepo template for building high-performance, typ
 
 ### Prerequisites
 
-- [Clerk](https://clerk.com/) account
 - [Convex](https://convex.dev/) account
 - [Vercel](https://vercel.com/) account
-- Node.js (LTS)
+- [Clerk](https://clerk.com/) account (optional — only if you want auth)
+- Node.js 26 (see `.nvmrc` — e.g. `nvm use`)
 - [pnpm](https://pnpm.io/installation) (`npm install -g pnpm`)
 
 ### Quick Start
@@ -70,8 +72,8 @@ A premium, production-ready monorepo template for building high-performance, typ
    ```
    *This copies all `.env.example` files to `.env.local` across the monorepo.*
 
-4. **Sync Local Auth Keys:**
-   Go to your **Clerk Dashboard** > **API Keys**, copy the environment variables, and paste them into your local `.env.local` files in `apps/web` and `packages/api`.
+4. **(Optional) Sync Clerk Auth Keys:**
+   Clerk is optional — skip this to run without auth. To enable it, go to your **Clerk Dashboard** > **API Keys**, copy the keys, and paste them into the local `.env.local` files in `apps/www`, `apps/app`, and `packages/api`.
 
 5. **Initialize Convex:**
    ```bash
@@ -102,10 +104,15 @@ To sync Clerk auth with your Convex backend:
 
 ## 🛠️ Development Workflows
 
-- **Lint & Format:** `pnpm check` (powered by Biome)
-- **Storybook:** `pnpm storybook` (visualize shared components)
-- **Tests:** `pnpm --filter e2e test` (run Playwright tests)
-- **Build:** `pnpm build` (optimized production build for all apps)
+- **Dev:** `pnpm dev` — runs all apps via Turbo. Portless serves stable HTTPS `.localhost` URLs (e.g. `https://www.turbostack.localhost`, `https://app.turbostack.localhost`).
+- **Lint & Format:** `pnpm lint` / `pnpm format` / `pnpm check` (Biome).
+- **Typecheck:** `pnpm typecheck` (per-package `tsc --noEmit`).
+- **Unit tests:** `pnpm test` (Storybook component tests in a real browser; excludes e2e).
+- **E2E tests:** `pnpm --filter e2e test` (Playwright; bypasses Portless via `PORTLESS=0`).
+- **Storybook:** `pnpm storybook` (visualize shared components).
+- **Build:** `pnpm build` (optimized production build for all apps).
+
+> Git hooks (lefthook) run Biome on staged files and validate Conventional Commits on each commit — they install automatically on `pnpm install`.
 
 ## 🚢 Deployment
 
@@ -113,7 +120,7 @@ To sync Clerk auth with your Convex backend:
 
 1. **Create Vercel Project:**
    - Go to [Vercel](https://vercel.com), create a new project, and import your repository.
-   - Hit **Deploy**. The initial build will fail—this is expected as we haven't connected services yet.
+   - Hit **Deploy**. The first build may fail until Convex is connected (it needs a `CONVEX_DEPLOY_KEY`). Clerk is optional and not required to deploy.
 
 2. **Connect Integrations:**
    - In your Vercel project, go to **Settings** > **Integrations**.
