@@ -8,7 +8,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: "html",
   use: {
-    baseURL: "http://localhost:5173",
+    baseURL: "http://127.0.0.1:5173",
     trace: "on-first-retry",
   },
   projects: [
@@ -18,8 +18,9 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: "pnpm --filter app dev",
-    url: "http://localhost:5173",
+    // Bypass the Portless proxy in tests — talk to Vite directly on its port.
+    command: "PORTLESS=0 pnpm --filter app dev",
+    url: "http://127.0.0.1:5173",
     reuseExistingServer: !process.env.CI,
   },
 });

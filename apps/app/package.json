@@ -4,7 +4,7 @@
   "version": "2.2.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "portless app.turbostack --app-port 5173 vite",
     "build": "tsc -b && vite build",
     "typecheck": "tsc -b",
     "preview": "vite preview",

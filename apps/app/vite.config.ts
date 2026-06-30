@@ -5,6 +5,9 @@ import { defineConfig } from "vite";
 export default defineConfig({
   plugins: [react()],
   server: {
+    // Bind IPv4 loopback explicitly. Vite can otherwise listen on IPv6 [::1],
+    // which the IPv4-targeting Portless proxy can't reach (-> 502).
+    host: "127.0.0.1",
     port: 5173,
     strictPort: true,
   },

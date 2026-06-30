@@ -26,7 +26,7 @@
     "vitest": "^4.1.9"
   },
   "scripts": {
-    "storybook": "storybook dev -p 6006",
+    "storybook": "portless storybook.turbostack --app-port 6006 storybook dev -p 6006",
     "build-storybook": "storybook build",
     "typecheck": "tsc --noEmit",
     "lint": "biome check .",
