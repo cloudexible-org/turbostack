@@ -1,34 +1,46 @@
-import { useState } from "react";
-import viteLogo from "/vite.svg";
-import reactLogo from "./assets/react.svg";
+import { api } from "@repo/api";
+import { useMutation, useQuery } from "convex/react";
+import { type FormEvent, useState } from "react";
 import "./App.css";
 
 function App() {
-  const [count, setCount] = useState(0);
+  const messages = useQuery(api.messages.list);
+  const sendMessage = useMutation(api.messages.send);
+  const [body, setBody] = useState("");
+
+  const handleSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+    const text = body.trim();
+    if (!text) return;
+    setBody("");
+    await sendMessage({ author: "anon", body: text });
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank" rel="noopener">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank" rel="noopener">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button type="button" onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <main className="card">
+      <h1>TurboStack</h1>
+      <p className="read-the-docs">Vite + React + Convex</p>
+
+      <form onSubmit={handleSubmit}>
+        <input
+          aria-label="Message"
+          value={body}
+          placeholder="Say something…"
+          onChange={(event) => setBody(event.target.value)}
+        />
+        <button type="submit">Send</button>
+      </form>
+
+      <ul>
+        {messages === undefined ? (
+          <li>Loading…</li>
+        ) : messages.length === 0 ? (
+          <li>No messages yet — send one above.</li>
+        ) : (
+          messages.map((message) => <li key={message._id}>{message.body}</li>)
+        )}
+      </ul>
+    </main>
   );
 }
 

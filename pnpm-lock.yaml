@@ -86,6 +86,9 @@ importers:
       '@t3-oss/env-core':
         specifier: ^0.13.11
         version: 0.13.11(typescript@6.0.3)(zod@4.4.3)
+      convex:
+        specifier: 'catalog:'
+        version: 1.42.1(@clerk/clerk-react@5.61.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@clerk/react@6.11.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react@19.2.7)
       react:
         specifier: 'catalog:'
         version: 19.2.7

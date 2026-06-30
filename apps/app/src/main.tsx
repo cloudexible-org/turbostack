@@ -1,10 +1,13 @@
 import { AnalyticsProvider } from "@repo/analytics";
+import { ConvexProvider, ConvexReactClient } from "convex/react";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.tsx";
 // Validates environment variables at startup (see ./env.ts).
 import { env } from "./env";
+
+const convex = new ConvexReactClient(env.VITE_CONVEX_URL);
 
 // Register service worker
 if ("serviceWorker" in navigator) {
@@ -31,7 +34,9 @@ createRoot(rootElement).render(
       apiKey={env.VITE_POSTHOG_KEY}
       apiHost={env.VITE_POSTHOG_HOST}
     >
-      <App />
+      <ConvexProvider client={convex}>
+        <App />
+      </ConvexProvider>
     </AnalyticsProvider>
   </StrictMode>,
 );
