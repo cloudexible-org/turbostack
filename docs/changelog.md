@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Turbo Remote Caching in CI:** Wired `TURBO_TOKEN` / `TURBO_TEAM` into `.github/workflows/ci.yml` so CI shares a remote cache with Vercel builds. Both are optional — Turbo falls back to local cache when unset. To enable: add a `TURBO_TOKEN` repo secret (Vercel access token) and a `TURBO_TEAM` repo variable (Vercel team slug).
 - **Vite app wired to the Convex stack:** Replaced the default Vite counter boilerplate in `apps/app` with a live Convex demo — a `messages` schema table with `list`/`send` functions (`packages/api/convex/messages.ts`), a `ConvexProvider` mounted in `main.tsx` from the typed env, and `App.tsx` showing a reactive query + mutation. Added `convex` as an app dependency and tightened `VITE_CONVEX_URL` to required (it now backs the Convex client). The app was previously a deployed-but-empty SPA that used none of the stack.
 
 ### Changed

@@ -14,6 +14,14 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# Turbo Remote Caching (shared with Vercel builds). Both are optional — Turbo
+# falls back to local cache when unset, so CI works before they're configured.
+# To enable: add a TURBO_TOKEN repo secret (a Vercel access token) and a
+# TURBO_TEAM repo variable (your Vercel team slug).
+env:
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+
 jobs:
   validate:
     name: lint · typecheck
