@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - **Bumped `engines.node` to `>=24`** (was `>=20`) to align with the toolchain and the planned Portless requirement.
+- **`@repo/api` exports TS source via an `exports` map:** Added `"exports": { ".": "./index.ts" }` and removed the `build: tsc` script, matching `@repo/ui`. Deleted the stale committed `index.js` / `index.d.ts` / `index.d.ts.map` (build artifacts that predated the package's `noEmit` config and could shadow imports) and gitignored them. Also removes the spurious "no output files for `@repo/api#build`" Turbo warning.
 
 ### Fixed
 - **Convex deploy wrapper for the Vite app:** Added `apps/app/vercel.json` mirroring the Next app's — `convex deploy --cmd "turbo build --filter=app"` with `--cmd-url-env-var-name VITE_CONVEX_URL` and `turbo-ignore app`. Previously only `apps/www` had a deploy wrapper, so a Vite app connected to Vercel ran a plain `vite build` and silently never deployed its Convex backend. Requires `CONVEX_DEPLOY_KEY` to be set in the Vercel project.

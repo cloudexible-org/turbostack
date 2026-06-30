@@ -1,2 +1,9 @@
 
 .env.local
+
+# This package exports its TS source directly (see "exports" in package.json).
+# Never commit compiled output.
+index.js
+index.d.ts
+index.d.ts.map
+*.tsbuildinfo
