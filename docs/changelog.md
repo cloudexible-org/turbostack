@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **Convex agent skills:** Ran `npx convex ai-files install` to add Convex agent skills (`.claude/skills/` for Claude Code, plus a portable `.agents/skills/` copy and `skills-lock.json`) covering component creation, migrations, performance audits, auth setup, and quickstart. Also appended a Convex pointer block to `AGENTS.md` directing agents to the generated `convex/_generated/ai/guidelines.md`.
+
 ## [3.0.0] - 2026-06-29
 
 ### Added
