@@ -18,12 +18,12 @@
     "@storybook/addon-vitest": "^10.4.6",
     "@storybook/react-vite": "^10.4.6",
     "@types/react": "catalog:",
-    "@vitest/browser-playwright": "^4.1.9",
-    "@vitest/coverage-v8": "^4.1.9",
+    "@vitest/browser-playwright": "^4.1.10",
+    "@vitest/coverage-v8": "^4.1.10",
     "playwright": "^1.61.1",
     "storybook": "catalog:",
     "typescript": "catalog:",
-    "vitest": "^4.1.9"
+    "vitest": "^4.1.10"
   },
   "scripts": {
     "storybook": "portless storybook.turbostack --app-port 6006 storybook dev -p 6006",
