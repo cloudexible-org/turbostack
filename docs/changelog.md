@@ -18,6 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - **Redundant Storybook Vitest setup:** Removed `packages/ui/.storybook/vitest.setup.ts` and its `setupFiles` reference. `@storybook/addon-vitest` applies preview annotations automatically since Storybook 10.3, so the manual `setProjectAnnotations` call only emitted a warning. a11y enforcement is unaffected (verified: a violating story still fails the test run).
 
+### Fixed
+- **Convex deploy no longer fails on missing `CLERK_JWT_ISSUER_DOMAIN`:** `packages/api/convex/auth.config.ts` now hardcodes `providers: []` and no longer references `process.env.CLERK_JWT_ISSUER_DOMAIN`. The [3.0.2] "Clerk truly optional" change did **not** actually fix the deploy failure — Convex requires every env var *referenced* by the auth config to be set on the target deployment, regardless of runtime `if`/ternary guards, so the bare `process.env.CLERK_JWT_ISSUER_DOMAIN` read still failed `convex deploy` on any deployment without the var (e.g. Vercel preview builds, including Dependabot PRs). Removing the reference makes deploys succeed everywhere. *Trade-off:* backend auth is now off unless you re-add the provider and set the env var — matching the app layer, which already ships with Clerk bypassed.
+
 ## [3.0.2] - 2026-06-29
 
 ### Fixed
