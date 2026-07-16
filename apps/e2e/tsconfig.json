@@ -1,0 +1,13 @@
+{
+  "extends": "@repo/config/base.json",
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    "module": "ESNext",
+    "types": ["node"],
+    "noEmit": true,
+    "declaration": false,
+    "declarationMap": false
+  },
+  "include": ["playwright.config.ts", "specs", "page-objects"]
+}

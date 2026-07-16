@@ -1,7 +1,11 @@
 name: CI
 
-# Validation only — lint and typecheck.
-# Deployment is handled by Vercel; this workflow does not build or deploy.
+# Validation only — lint, typecheck and build.
+# Deployment is handled by Vercel; this workflow builds to validate, not to deploy.
+# The build step exists because `typecheck` alone can pass while the build is
+# broken: `tsc` is a standalone binary, but Next drives the TypeScript compiler
+# API programmatically, so a compiler that fails to load breaks the build while
+# leaving typecheck green.
 # Unit tests (@repo/ui Storybook stories) run in a real browser and are run
 # locally via `pnpm test`, not in CI.
 on:
@@ -24,7 +28,7 @@ env:
 
 jobs:
   validate:
-    name: lint · typecheck
+    name: lint · typecheck · build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -48,3 +52,12 @@ jobs:
 
       - name: Typecheck
         run: pnpm typecheck
+
+      - name: Build
+        run: pnpm build
+        env:
+          # Placeholder, not a secret. `apps/www` validates its env at build time
+          # and requires a well-formed URL here; only the shape matters, since
+          # prerendering never opens a connection. Everything else the apps read
+          # is optional and is skipped when absent.
+          NEXT_PUBLIC_CONVEX_URL: https://ci-build-placeholder.convex.cloud
