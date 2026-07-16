@@ -2,9 +2,11 @@ import { AnalyticsProvider } from "@repo/analytics";
 import { Analytics } from "@vercel/analytics/react";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { MotionProvider } from "@/components/motion-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 import { env } from "@/env";
 import { ConvexClientProvider } from "./ConvexClientProvider";
+import "lenis/dist/lenis.css";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -42,7 +44,9 @@ export default function RootLayout({
             apiKey={env.NEXT_PUBLIC_POSTHOG_KEY}
             apiHost={env.NEXT_PUBLIC_POSTHOG_HOST}
           >
-            <ConvexClientProvider>{children}</ConvexClientProvider>
+            <ConvexClientProvider>
+              <MotionProvider>{children}</MotionProvider>
+            </ConvexClientProvider>
           </AnalyticsProvider>
           <Analytics />
         </ThemeProvider>
