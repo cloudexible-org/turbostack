@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **Motion and Lenis on the `www` landing page:** Added `motion` (^12.42.2) and `lenis` (^1.3.25) to `apps/www`, wired through a single `MotionProvider` client boundary (`components/motion-provider.tsx`) mounted in the root layout. Lenis runs in `root` mode so it eases the real document scroll and renders no wrapper element, which keeps the sticky nav working. *Why:* the landing page had no scroll-aware motion — the hero's `animate-in fade-in zoom-in` fired once on mount and the nine feature cards below the fold were fully painted before anyone saw them. Note the package is `motion`, not `framer-motion`: the library was renamed, and `motion/react` is the current import path.
+- **Landing page rebuilt as a scrolling narrative:** Split the single `app/page.tsx` into composed sections under `components/landing/` — `Hero` (staggered entrance + scroll-linked parallax hand-off), `StackMarquee` (seamless looping strip of the 12 stack pieces), `Features` (staggered scroll reveal + per-card cursor spotlight), `Showcase` (terminal that types the three setup commands on entry), `Cta` (scroll-linked glow), and `SiteNav` (spring reading-progress bar, elevation on scroll). *Why:* the page was ~1.5 viewports of hero + grid + footer, which is too short for smooth scroll to be worth a library. It is now ~4 viewports (3004px against a 720px viewport), so Lenis has actual distance to smooth and the reveals have somewhere to land.
+
+### Changed
+- **`app/page.tsx` is a Server Component again:** the page-level `"use client"` is gone; only the section components that need hooks are client. *Why:* the directive was previously at the top of the whole page, so the entire tree — including static copy and the footer — shipped as client JS.
+- **Reduced motion is handled centrally:** `MotionConfig reducedMotion="user"` in `MotionProvider` drops transform animations while keeping opacity fades for users who ask for it, and Lenis is skipped entirely for them, so no section branches on the media query itself. This replaces the previous `tailwindcss-animate` classes, which had no reduced-motion path at all.
+
+### Fixed
+- **`www` dev site now hydrates on its portless URL:** Added `allowedDevOrigins: ["*.turbostack.localhost"]` to `apps/www/next.config.ts`. *Why:* `pnpm dev` serves the app through portless at `https://www.turbostack.localhost`, but Next 16 blocks `/_next` dev resources from any origin not on that list, so it refused the HMR client (`⚠ Blocked cross-origin request to Next.js dev resource /_next/webpack-hmr from "www.turbostack.localhost"` in the dev log). Static chunks still returned 200, so the page rendered HTML and then never hydrated — the theme toggle and Clerk buttons were silently inert on that URL. This predates the Motion work but was invisible while the page needed no JS to look correct; Motion SSRs `opacity: 0` and animates in on mount, which turned a dead client into a blank page. Dev-only — Next ignores the setting in production builds, so Vercel is unaffected.
+
 ## [4.0.0] - 2026-07-16
 
 ### Added
