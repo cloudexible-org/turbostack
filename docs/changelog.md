@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [4.1.0] - 2026-07-16
 
 ### Added
 - **Motion and Lenis on the `www` landing page:** Added `motion` (^12.42.2) and `lenis` (^1.3.25) to `apps/www`, wired through a single `MotionProvider` client boundary (`components/motion-provider.tsx`) mounted in the root layout. Lenis runs in `root` mode so it eases the real document scroll and renders no wrapper element, which keeps the sticky nav working. *Why:* the landing page had no scroll-aware motion — the hero's `animate-in fade-in zoom-in` fired once on mount and the nine feature cards below the fold were fully painted before anyone saw them. Note the package is `motion`, not `framer-motion`: the library was renamed, and `motion/react` is the current import path.
