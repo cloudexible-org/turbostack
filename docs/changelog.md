@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [4.0.0] - 2026-07-16
 
 ### Added
 - **CI builds on every run:** Added a `Build` step to `.github/workflows/ci.yml` (job renamed `lint · typecheck` → `lint · typecheck · build`). *Why:* `typecheck` alone can pass while the build is broken — `tsc` is a standalone binary, but Next drives the TypeScript compiler API programmatically, so a compiler that fails to load leaves `typecheck` green and breaks `next build`. Verified by A/B in a clean worktree: with the catalog temporarily set to `typescript@7.0.2`, `pnpm typecheck` exits 0 while `pnpm build` exits 1 (`The "id" argument must be of type string. Received undefined`). The step sets `NEXT_PUBLIC_CONVEX_URL` to a placeholder — `apps/www` validates env at build time and requires a well-formed URL, but only the shape matters since prerendering never connects. No real secrets are needed; every other var the apps read is optional. Branch protection was checked first (none configured), so the job rename doesn't silently un-gate merges.
