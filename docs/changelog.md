@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [4.1.1] - 2026-07-17
 
 ### Added
 - **"Built with Turbostack" showcase on the landing page:** New `components/landing/built-with.tsx` section spotlighting [Instaclub](https://instaclub.app) — an AI-powered club management platform built from this template — in a browser frame between the setup showcase and the closing CTA. The screenshot is captured in both themes (`public/showcase/instaclub-{light,dark}.png`, 1440×900) and swapped with `dark:` so the embed never fights the surrounding page. *Why:* the page claimed "Web, App, and Native" with nothing to back it; Instaclub ships on the web, the App Store, and Google Play from one Turbostack repo, which is the proof.
