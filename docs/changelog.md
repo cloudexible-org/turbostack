@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **"Built with Turbostack" showcase on the landing page:** New `components/landing/built-with.tsx` section spotlighting [Instaclub](https://instaclub.app) — an AI-powered club management platform built from this template — in a browser frame between the setup showcase and the closing CTA. The screenshot is captured in both themes (`public/showcase/instaclub-{light,dark}.png`, 1440×900) and swapped with `dark:` so the embed never fights the surrounding page. *Why:* the page claimed "Web, App, and Native" with nothing to back it; Instaclub ships on the web, the App Store, and Google Play from one Turbostack repo, which is the proof.
+
+### Fixed
+- **`dark:` utilities now follow the theme toggle instead of the OS:** Added `@custom-variant dark (&:where(.dark, .dark *));` to `apps/www/app/globals.css`. *Why:* `next-themes` is configured with `attribute="class"` and drives a `.dark` class on `<html>`, but Tailwind v4 defaults the `dark:` variant to `@media (prefers-color-scheme: dark)` unless a custom variant says otherwise. Every `dark:` utility therefore tracked the OS, not the selected theme. This went unnoticed because the design tokens are CSS variables under a `.dark` selector, so colors themed correctly — but `components/theme-toggle.tsx` swaps its own Sun/Moon icon with `dark:` classes, meaning the toggle showed the wrong icon whenever the chosen theme disagreed with the OS. Predates the showcase work; caught when the new themed screenshot swap inverted.
+
 ## [4.1.0] - 2026-07-16
 
 ### Added
