@@ -1,6 +1,11 @@
 @import "tailwindcss";
 @plugin "tailwindcss-animate";
 
+/* next-themes drives the theme with a `.dark` class on <html>, but Tailwind v4
+   defaults the `dark:` variant to `prefers-color-scheme`. Without this, every
+   `dark:` utility follows the OS instead of the theme toggle. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
