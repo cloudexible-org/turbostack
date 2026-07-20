@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **`.scratch/` local working directory:** New tracked folder holding only `README.md` and a self-scoped `.gitignore` (`*` with `!.gitignore` / `!README.md`), so the directory exists in every clone while everything a developer puts in it stays untracked. Added a "Local Scratch Space" section to `AGENTS.md` (symlinked as `CLAUDE.md`) pointing agents at it, and renumbered the sections that follow. *Why:* temporary artifacts — repro scripts, screenshots, logs, dumps, draft notes — previously had nowhere to live inside the repo, so they either landed in `/tmp` (invisible to the developer, lost between sessions) or in the working tree where they show up as untracked noise in `git status` and risk being committed. The nested `.gitignore` keeps the rule next to the folder it governs rather than adding another entry to the root file.
+
 ## [4.1.1] - 2026-07-17
 
 ### Added

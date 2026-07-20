@@ -1,0 +1,5 @@
+# Everything in this folder is local to the developer and never committed —
+# except the folder's own guidance files, which keep the directory in git.
+*
+!.gitignore
+!README.md
