@@ -4,15 +4,15 @@ packages:
 
 catalogs:
   default:
-    '@biomejs/biome': ^2.5.1
-    '@tailwindcss/postcss': ^4.3.2
-    '@types/node': ^26.0.1
+    '@biomejs/biome': ^2.5.5
+    '@tailwindcss/postcss': ^4.3.3
+    '@types/node': ^26.1.1
     '@types/react': ^19.2.17
     '@types/react-dom': ^19.2.3
-    convex: ^1.42.1
-    postcss: ^8.5.16
-    react: ^19.2.7
-    react-dom: ^19.2.7
-    storybook: ^10.4.6
-    tailwindcss: ^4.3.2
+    convex: ^1.42.3
+    postcss: ^8.5.21
+    react: ^19.2.8
+    react-dom: ^19.2.8
+    storybook: ^10.5.3
+    tailwindcss: ^4.3.3
     typescript: ^6.0.3
