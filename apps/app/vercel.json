@@ -1,5 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "git": {
+    "deploymentEnabled": {
+      "**": false,
+      "main": true
+    }
+  },
   "buildCommand": "cd ../../packages/api && npx convex deploy --cmd \"cd ../.. && turbo build --filter=app\" --cmd-url-env-var-name VITE_CONVEX_URL",
   "ignoreCommand": "cd ../.. && npx turbo-ignore app"
 }

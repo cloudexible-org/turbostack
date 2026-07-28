@@ -22,6 +22,18 @@
     "test": {
       "dependsOn": ["^build"]
     },
+    "e2e#test": {
+      // Not cached, and deliberately so. `e2e` does not depend on `app` in the
+      // workspace graph, so apps/app's sources are not part of this task's hash
+      // — a cached pass would be replayed unchanged after a UI regression. The
+      // suite also drives its own Vite server from source, so it needs no
+      // upstream build.
+      "cache": false,
+      "dependsOn": [],
+      // Turbo 2 runs strict env mode: undeclared vars are not passed through,
+      // and apps/app throws at startup without this one.
+      "env": ["VITE_CONVEX_URL"]
+    },
     "dev": {
       "cache": false,
       "persistent": true
