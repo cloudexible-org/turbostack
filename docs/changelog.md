@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Removed
+- **`docs/prd.md`:** Deleted. The template no longer needs a product requirements doc — `README.md` covers the stack and getting started, `AGENTS.md` covers the standards, `docs/e2e-architecture.md` covers the test suite, and this changelog carries the reasoning. Nothing in the repo linked to the PRD, so it had no readers and no mechanism keeping it honest: it went untouched from the initial commit (`ccb0c12`) through v4.3.1 and had drifted into describing a template that never existed — `apps/web` as a web-first "source of truth", an `apps/native` Expo + `react-native-webview` shell, Node 20, and a three-variable env contract. The last version of the file is recoverable from git at `12ff9aa:docs/prd.md` if a spec is ever wanted again, though it documents the pre-v4 layout and should be rewritten rather than restored. Four facts it recorded live nowhere else and are preserved here: (1) the planned Expo native shell was never built and is not the current direction, and the README's "Capacitor-ready" describes the shape of `apps/app`, not shipped tooling — Capacitor is not a dependency anywhere in the repo; (2) auth is off end to end — `apps/app` validates `VITE_CLERK_PUBLISHABLE_KEY` but never reads it, and `packages/api/convex/auth.config.ts` registers no provider; (3) `packages/api` has no tests, its `test` script is a placeholder `echo`, against `AGENTS.md` §5; (4) the PWA story is split and untested — the manifest is in `apps/www`, the service worker in `apps/app`, and neither surface has a verified offline path.
+
 ## [4.3.1] - 2026-07-28
 
 ### Fixed
