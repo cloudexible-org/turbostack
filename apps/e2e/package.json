@@ -9,7 +9,7 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@playwright/test": "^1.62.0",
+    "@playwright/test": "^1.62.1",
     "@repo/config": "workspace:*",
     "@types/node": "catalog:",
     "typescript": "catalog:"
