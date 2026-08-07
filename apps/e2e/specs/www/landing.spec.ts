@@ -17,10 +17,42 @@ test.describe("landing chrome", () => {
 
     await expect(landing.getHeading()).toBeVisible();
     await expect(landing.getTagline()).toBeVisible();
-    await expect(landing.getGithubLink().first()).toHaveAttribute(
+    await expect(landing.getGithubLink()).toHaveAttribute(
       "href",
       "https://github.com/cloudexible-org/turbostack",
     );
+  });
+
+  /**
+   * Button-styled links must stay links. `components/ui/button` exposes
+   * `ButtonLink` (a plain `<a>` carrying `buttonVariants`) precisely because
+   * `<Button render={<a />} />` sets `nativeButton={false}`, and Base UI then
+   * stamps `role="button"` over the anchor's implicit link role — so assistive
+   * technology announces a navigating link as a button. Base UI's own docs say
+   * links "should not be rendered as buttons through the `render` prop".
+   *
+   * `getByRole("link", { exact: true })` fails on both halves of the old bug:
+   * the overridden role, and the doubled accessible name ("GitHub GitHub") that
+   * an `aria-label`led icon produced next to identical visible text.
+   */
+  test("button-styled links keep link semantics and a single name", async ({
+    page,
+  }) => {
+    const landing = new LandingPage(page);
+    await landing.goto();
+
+    for (const link of [landing.getGithubLink(), landing.getStarLink()]) {
+      await expect(link).toHaveCount(1);
+      await expect(link).toHaveAttribute(
+        "href",
+        "https://github.com/cloudexible-org/turbostack",
+      );
+      // A link, never a button — and never both.
+      await expect(link).not.toHaveAttribute("role", "button");
+    }
+
+    // The decorative icon must not contribute a second "GitHub" to the name.
+    await expect(page.getByRole("img", { name: "GitHub" })).toHaveCount(0);
   });
 
   test("renders the sticky nav and footer", async ({ page }) => {

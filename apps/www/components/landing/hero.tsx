@@ -6,7 +6,7 @@ import { motion, useScroll, useTransform } from "motion/react";
 import * as React from "react";
 import { GithubIcon } from "@/components/landing/github-icon";
 import { EASE_OUT, revealGroup, revealItem } from "@/components/landing/reveal";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonLink } from "@/components/ui/button";
 import { Typography } from "@/components/ui/typography";
 import { env } from "@/env";
 
@@ -79,21 +79,17 @@ export function Hero(): React.ReactNode {
               </Button>
             </SignUpButton>
           )}
-          <Button
+          <ButtonLink
             variant="outline"
             size="lg"
             className="h-12 rounded-full px-8 text-base shadow-sm"
-            render={
-              <a
-                href="https://github.com/cloudexible-org/turbostack"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <GithubIcon className="mr-2 h-5 w-5" />
-                GitHub
-              </a>
-            }
-          />
+            href="https://github.com/cloudexible-org/turbostack"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <GithubIcon className="mr-2 h-5 w-5" />
+            GitHub
+          </ButtonLink>
         </motion.div>
       </motion.div>
 

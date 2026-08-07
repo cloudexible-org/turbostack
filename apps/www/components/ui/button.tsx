@@ -45,7 +45,9 @@ export interface ButtonProps
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, render, nativeButton, ...props }, ref) => {
-    // Automatically set nativeButton to false if we are rendering a custom element (like an <a>)
+    // A rendered element that is not a <button> needs `nativeButton={false}` so
+    // Base UI supplies the button semantics the tag lacks. Do NOT use `render`
+    // to produce a link — use `ButtonLink` below. See the note on it.
     const isNativeButton = nativeButton ?? !render;
 
     return (
@@ -62,4 +64,36 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
 Button.displayName = "Button";
 
-export { Button, buttonVariants };
+export interface ButtonLinkProps
+  extends React.AnchorHTMLAttributes<HTMLAnchorElement>,
+    VariantProps<typeof buttonVariants> {}
+
+/**
+ * A link that is styled as a button.
+ *
+ * Deliberately a plain `<a>` with the button *styles*, not
+ * `<Button render={<a />} />`. Base UI's Button enforces button semantics: with
+ * `nativeButton={false}` it stamps `role="button"` and `tabIndex` onto whatever
+ * it renders, and an explicit `role` overrides an anchor's implicit link role.
+ * The result is a navigating link that assistive technology announces as a
+ * button, and that `getByRole("link")` cannot find.
+ *
+ * Base UI's own documentation is explicit about this — links "have their own
+ * semantics and should not be rendered as buttons through the `render` prop"
+ * (`node_modules/@base-ui/react/docs/react/components/button.md`). Anchors
+ * already carry link semantics and Enter-key activation from the browser, so
+ * there is nothing for Base UI to add here beyond the class names.
+ */
+const ButtonLink = React.forwardRef<HTMLAnchorElement, ButtonLinkProps>(
+  ({ className, variant, size, ...props }, ref) => (
+    <a
+      ref={ref}
+      className={cn(buttonVariants({ variant, size, className }))}
+      {...props}
+    />
+  ),
+);
+
+ButtonLink.displayName = "ButtonLink";
+
+export { Button, ButtonLink, buttonVariants };

@@ -60,14 +60,18 @@ export class LandingPage {
   }
 
   /**
-   * The hero's GitHub CTA. It is a real `<a href>`, but `components/ui/button`
-   * passes `nativeButton={false}` when a `render` element is supplied, and Base
-   * UI then stamps an explicit `role="button"` on it — which overrides the
-   * anchor's implicit link role. `getByRole("link")` therefore does NOT match
-   * it; scope by href within the hero section instead.
+   * The hero's GitHub CTA — a `ButtonLink`, i.e. a real `<a href>` that keeps
+   * its implicit link role. It is addressed by role on purpose: routing it
+   * through `<Button render={<a />} />` would stamp `role="button"` on it and
+   * this locator would stop matching, which is the regression to catch.
    */
   getGithubLink() {
-    return this.page.locator('#top a[href^="https://github.com/"]');
+    return this.page.getByRole("link", { name: "GitHub", exact: true });
+  }
+
+  /** The closing CTA's GitHub link — same component, different label. */
+  getStarLink() {
+    return this.page.getByRole("link", { name: "Star on GitHub", exact: true });
   }
 
   /** The scroll-linked hero block — carries the `y` drift transform. */
