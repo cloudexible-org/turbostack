@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- **Convex AI files stay at the repo root, and the guidelines are now actually in the repo:** Running `npx convex ai-files install` in `packages/api` (the real Convex project) installs a *complete second copy* — `AGENTS.md`, `CLAUDE.md`, a 33-skill `.claude/skills` tree, `.agents/`, and `skills-lock.json` — giving the repo three AGENTS/CLAUDE pairs and two skills trees. It was removed with `npx convex ai-files remove`; the root install is untouched and still reports up to date. *Why root:* Convex's docs give **no** monorepo guidance, and there is an open issue on `convex-backend` from a user whose `packages/backend/convex` layout — the same shape as this repo — is not detected, in which the complaint is precisely this over-installation of skills. The wider AGENTS.md convention is a root file as the source of truth, which is what `AGENTS.md` (symlinked as `CLAUDE.md`) already is here.
+- **`packages/api/convex.json` disables the AI-files prompts:** `{ "aiFiles": { "enabled": false } }`. *Why:* `npx convex dev` runs from `packages/api` and checks *its own* directory, so it reported "Convex AI files are not installed" on every start even though they are installed at the root. This is the supported mechanism rather than a workaround — `convex/schemas/convex.schema.json` documents `aiFiles.enabled` as "When false, disables all Convex AI files prompts and staleness messages in `npx convex dev`". Verified: `convex dev --once` now prints nothing about AI files.
+- **`.gitignore` no longer hides the Convex guidelines from fresh clones:** `convex/_generated` became `convex/_generated/*` plus `!convex/_generated/ai/`. *Why:* a gitignore pattern containing a slash is anchored to the file's own directory, so `convex/_generated` matched **only** the root `./convex/_generated` — never `packages/api/convex/_generated`, whose generated client is tracked and always was. The consequence was that `convex/_generated/ai/guidelines.md`, the file `AGENTS.md` instructs every agent to "**always read first**", existed only on machines where someone had run the installer and was missing from every clone and from CI. It is now tracked. `ai-files.state.json` stays ignored — it is per-machine install bookkeeping, and sharing its hashes across clones would only cause churn.
+
 ## [4.5.0] - 2026-08-07
 
 ### Added

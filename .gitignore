@@ -42,7 +42,17 @@ next-env.d.ts
 .turbo
 
 # convex
-convex/_generated
+# NOTE: this pattern contains a slash, so it is anchored to the repo root and
+# matches only ./convex/_generated — NOT packages/api/convex/_generated, whose
+# generated client is deliberately tracked.
+convex/_generated/*
+# …but keep the AI guidelines. AGENTS.md tells every agent to "always read
+# convex/_generated/ai/guidelines.md first", and while it was ignored that file
+# was absent from a fresh clone — present only on machines that had run
+# `npx convex ai-files install`. The state file stays ignored: it is per-machine
+# install bookkeeping.
+!convex/_generated/ai/
+convex/_generated/ai/ai-files.state.json
 # Local deployment state: ports, admin key and deployment name, all specific to
 # one machine. apps/e2e reads the port and identity from here.
 .convex/
