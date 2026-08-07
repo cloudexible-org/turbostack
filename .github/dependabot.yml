@@ -24,3 +24,16 @@ updates:
     commit-message:
       prefix: ci
       include: scope
+    ignore:
+      # Every action here is pinned to a floating major (`actions/checkout@v7`,
+      # `pnpm/action-setup@v6`, …), so patch and minor releases are picked up
+      # automatically and a PR for one only proposes *narrowing* that tag to an
+      # exact version — which would freeze the action and stop it receiving the
+      # very fixes the PR is about. #15 was exactly this (`@v6` → `@v6.0.9`) and
+      # was closed for that reason; without this rule Dependabot re-raises it on
+      # every v6.x release. Majors still come through, since those need a human
+      # to change the tag — #11 (`setup-node` v6 → v7) is the shape we do want.
+      - dependency-name: "*"
+        update-types:
+          - version-update:semver-patch
+          - version-update:semver-minor
