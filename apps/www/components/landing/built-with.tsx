@@ -4,6 +4,7 @@ import { ArrowUpRight } from "lucide-react";
 import { motion } from "motion/react";
 import Image from "next/image";
 import { Reveal, revealGroup, revealItem } from "@/components/landing/reveal";
+import { NewTabHint } from "@/components/ui/new-tab-hint";
 import { Typography } from "@/components/ui/typography";
 import instaclubDark from "@/public/showcase/instaclub-dark.png";
 import instaclubLight from "@/public/showcase/instaclub-light.png";
@@ -41,6 +42,7 @@ export function BuiltWith(): React.ReactNode {
               className="font-medium text-foreground underline-offset-4 hover:underline"
             >
               Instaclub
+              <NewTabHint />
             </a>{" "}
             is an AI-powered platform for clubs, teams, and organizations —
             events, members, forms, and expenses in one place. It started from
@@ -68,6 +70,7 @@ export function BuiltWith(): React.ReactNode {
             className="group inline-flex items-center gap-1.5 font-medium text-primary text-sm"
           >
             Visit instaclub.app
+            <NewTabHint />
             <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
           </a>
         </Reveal>
@@ -95,7 +98,9 @@ function BrowserFrame(): React.ReactNode {
       whileHover={{ y: -6 }}
       transition={{ type: "spring", stiffness: 300, damping: 25 }}
       className="group block overflow-hidden rounded-xl border border-border bg-card shadow-lg"
-      aria-label="Instaclub — opens in a new tab"
+      // Image-only link: it has no text to append `NewTabHint` to, so the
+      // announcement has to live in the label. Wording kept identical to it.
+      aria-label="Instaclub (opens in a new tab)"
     >
       <motion.div
         variants={revealItem}

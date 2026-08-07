@@ -7,6 +7,7 @@ import * as React from "react";
 import { GithubIcon } from "@/components/landing/github-icon";
 import { EASE_OUT, revealGroup, revealItem } from "@/components/landing/reveal";
 import { Button, ButtonLink } from "@/components/ui/button";
+import { NewTabHint } from "@/components/ui/new-tab-hint";
 import { Typography } from "@/components/ui/typography";
 import { env } from "@/env";
 
@@ -89,6 +90,7 @@ export function Hero(): React.ReactNode {
           >
             <GithubIcon className="mr-2 h-5 w-5" />
             GitHub
+            <NewTabHint />
           </ButtonLink>
         </motion.div>
       </motion.div>

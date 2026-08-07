@@ -7,6 +7,7 @@ import * as React from "react";
 import { GithubIcon } from "@/components/landing/github-icon";
 import { revealGroup, revealItem } from "@/components/landing/reveal";
 import { Button, ButtonLink } from "@/components/ui/button";
+import { NewTabHint } from "@/components/ui/new-tab-hint";
 import { Typography } from "@/components/ui/typography";
 import { env } from "@/env";
 
@@ -83,6 +84,7 @@ export function Cta(): React.ReactNode {
           >
             <GithubIcon className="mr-2 h-5 w-5" />
             Star on GitHub
+            <NewTabHint />
           </ButtonLink>
         </motion.div>
       </motion.div>

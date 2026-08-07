@@ -55,6 +55,25 @@ test.describe("landing chrome", () => {
     await expect(page.getByRole("img", { name: "GitHub" })).toHaveCount(0);
   });
 
+  /**
+   * Every `target="_blank"` link must announce itself. Sighted users see a new
+   * tab appear; screen reader users get no signal at all, and Back no longer
+   * returns them where they were (WCAG 3.2.5).
+   *
+   * Asserted as an invariant over the whole page rather than link by link, so a
+   * new external link added later cannot quietly skip the hint — that is the
+   * failure this is really guarding against, since every individual link here
+   * already passes.
+   */
+  test("every link that opens a new tab announces it", async ({ page }) => {
+    const landing = new LandingPage(page);
+    await landing.goto();
+
+    const total = await landing.getNewTabLinks().count();
+    expect(total).toBeGreaterThan(0);
+    await expect(landing.getAnnouncedNewTabLinks()).toHaveCount(total);
+  });
+
   test("renders the sticky nav and footer", async ({ page }) => {
     const landing = new LandingPage(page);
     await landing.goto();

@@ -5,6 +5,7 @@ import { Hero } from "@/components/landing/hero";
 import { Showcase } from "@/components/landing/showcase";
 import { SiteNav } from "@/components/landing/site-nav";
 import { StackMarquee } from "@/components/landing/stack-marquee";
+import { NewTabHint } from "@/components/ui/new-tab-hint";
 import { Typography } from "@/components/ui/typography";
 
 export default function Home(): React.ReactNode {
@@ -31,6 +32,7 @@ export default function Home(): React.ReactNode {
             className="font-medium text-foreground hover:underline"
           >
             Cloudexible
+            <NewTabHint />
           </a>
         </Typography>
       </footer>

@@ -66,12 +66,28 @@ export class LandingPage {
    * this locator would stop matching, which is the regression to catch.
    */
   getGithubLink() {
-    return this.page.getByRole("link", { name: "GitHub", exact: true });
+    return this.page.getByRole("link", {
+      name: "GitHub (opens in a new tab)",
+      exact: true,
+    });
   }
 
   /** The closing CTA's GitHub link — same component, different label. */
   getStarLink() {
-    return this.page.getByRole("link", { name: "Star on GitHub", exact: true });
+    return this.page.getByRole("link", {
+      name: "Star on GitHub (opens in a new tab)",
+      exact: true,
+    });
+  }
+
+  /** Every link that opens a new tab, by DOM attribute. */
+  getNewTabLinks() {
+    return this.page.locator('a[target="_blank"]');
+  }
+
+  /** Links whose *accessible name* says they open a new tab. */
+  getAnnouncedNewTabLinks() {
+    return this.page.getByRole("link", { name: /\(opens in a new tab\)$/ });
   }
 
   /** The scroll-linked hero block — carries the `y` drift transform. */
