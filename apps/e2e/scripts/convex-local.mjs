@@ -17,12 +17,22 @@
  *                                can run the suite. `--env-file` cannot express
  *                                this: it insists on naming a deployment.
  *   CONVEX_DEPLOYMENT=""         the CLI otherwise resolves this from
- *                                packages/api/.env.local *first*, and a stale
- *                                or deleted cloud deployment there fails the
- *                                command outright with a 404.
+ *                                packages/api/.env.local *first* and cannot
+ *                                authorize it once the deploy key below is
+ *                                cleared, so it fails before ever considering
+ *                                a local deployment.
  *   CONVEX_DEPLOY_KEY=""         a deploy key pins the CLI to the cloud
  *                                deployment it was minted for, and every local
  *                                operation fails while it is set.
+ *
+ * The last two are one fact, not two: the deploy key is what grants access to
+ * the cloud deployment named in .env.local, and the logged-in CLI account does
+ * not otherwise have it. Clearing the key therefore forces clearing the
+ * deployment as well. Verified 2026-08-07 — `npx convex data` lists tables with
+ * the key present and reports "You don't have access to the selected project"
+ * without it. The management API answers 404 in that state, which looks exactly
+ * like a deleted deployment and is not one: it is live, and is the deployment
+ * `pnpm dev` runs against.
  *
  * And one thing the CLI does that has to be undone — see the watcher below.
  */

@@ -99,12 +99,19 @@ export function ensureLocalDeployment(): void {
   //   - anonymous needs no Convex account, so anyone who clones this template
   //     can run the suite;
   //   - the CLI otherwise resolves `CONVEX_DEPLOYMENT` from
-  //     `packages/api/.env.local` first, and a stale or deleted cloud
-  //     deployment there fails the whole command with a 404 before it ever
-  //     considers a local one.
+  //     `packages/api/.env.local` first, and cannot authorize it once
+  //     `CONVEX_DEPLOY_KEY` is cleared (below), so it fails before ever
+  //     considering a local deployment.
+  //
   // `CONVEX_DEPLOY_KEY` is cleared because a deploy key pins the CLI to the
   // cloud deployment it was minted for, and every local operation fails while
-  // it is set.
+  // it is set. That clearing is *why* `CONVEX_DEPLOYMENT` has to go too: the
+  // key is what grants access to that cloud deployment, and the logged-in CLI
+  // account does not otherwise have it. Verified 2026-08-07 — `npx convex data`
+  // lists tables with the key present and reports "You don't have access to the
+  // selected project" without it. The management API answers 404 there, which
+  // reads like a deleted deployment and is not one: the deployment is live and
+  // is what `pnpm dev` uses.
   withDevEnvProtected(() => {
     execFileSync("npx", ["convex", "dev", "--once", "--typecheck", "disable"], {
       cwd: BACKEND_DIR,
