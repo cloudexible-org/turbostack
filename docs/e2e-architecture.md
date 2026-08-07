@@ -15,19 +15,28 @@ what would bring it back.
 | | |
 |---|---|
 | Runner | Playwright (`apps/e2e`, package name `e2e`) |
-| Target | `apps/app` — Vite + React — on `http://127.0.0.1:5173` |
+| Project `app` | `apps/app` — Vite + React — on `http://127.0.0.1:5173` |
+| Project `www` | `apps/www` — Next.js — on `http://127.0.0.1:3100` |
 | Backend | Convex (`packages/api/convex`) |
 | Auth | None. `auth.config.ts` ships `providers: []` on purpose |
-| Page objects | `apps/e2e/page-objects/` |
-| Specs | `apps/e2e/specs/` |
+| Page objects | `apps/e2e/page-objects/<app>/` |
+| Specs | `apps/e2e/specs/<app>/` |
 
-`apps/www` (Next.js, Clerk) is **not** under test. Nothing in this suite should
-assert against it.
+Each project pins its own `baseURL` and has its own `webServer` entry, rather
+than sharing a single top-level one. That is deliberate: a shared `baseURL` is
+what let defect (1) below happen — a spec asserting against the wrong app while
+looking perfectly reasonable. **Put a spec in the directory of the app it
+asserts against**; `testDir` is what routes it to the right server.
+
+`apps/www` came under test on 2026-08-07, alongside the `motion` 12 → 13
+upgrade. Before that it had no runtime coverage at all, which is why that
+upgrade was held back from the routine dependency sweep — see §9.
 
 Run it:
 
 ```bash
-pnpm test:e2e          # or: pnpm --filter e2e test
+pnpm test:e2e                              # both projects
+pnpm --filter e2e exec playwright test --project=www
 ```
 
 ---
@@ -262,6 +271,33 @@ comes later — see below.
   — otherwise "record appears" can pass by matching pre-existing data.
 - **Derive expected values from what the test created**, never hard-code names
   or IDs.
+
+### Animation state (`apps/www`)
+
+`apps/www` runs ~70 `motion` usages across nine landing components. Asserting
+them needs care:
+
+- **`toBeVisible()` ignores `opacity`.** It checks for a non-empty bounding box
+  and `visibility`/`display`, so an element whose reveal never fired — still at
+  `opacity: 0` — reads as visible. Assert `toHaveCSS("opacity", "1")` when the
+  point of the test is that an animation ran.
+- **Scroll with `page.mouse.wheel`, never `window.scrollTo`.** Lenis runs in
+  root mode and eases the real document scroll; a programmatic `scrollTo` fights
+  it, and a synthetic `WheelEvent` is untrusted and ignored outright. Use
+  `LandingPage.wheel()`, which also waits for the easing to settle.
+- **Never measure animation in a backgrounded tab.** A hidden page throttles
+  `requestAnimationFrame` and suppresses IntersectionObserver, so every
+  scroll-linked value freezes and every `whileInView` reveal stays hidden — which
+  looks exactly like a broken animation library. This cost real time on
+  2026-08-07 while verifying the `motion` upgrade.
+- **Assert thresholds for springs, exact values only at rest.** The
+  reading-progress bar settles asymptotically; `toBeGreaterThan` is honest where
+  an equality assertion would be flaky.
+- **A blocked dev origin looks like broken motion.** If every animation assertion
+  fails at once, check the Next dev server output for `Blocked cross-origin
+  request to Next.js dev resource` before suspecting the library — the page ships
+  HTML and never hydrates. `allowedDevOrigins` in `apps/www/next.config.ts` must
+  list whatever host the suite serves from.
 
 ---
 

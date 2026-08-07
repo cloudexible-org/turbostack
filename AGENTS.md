@@ -32,7 +32,7 @@ This document defines the core standards and automated workflows that any AI age
 * **Page Objects Pattern:** Whenever a new page is created in `apps/app` or a significant UI component is added to `packages/ui`, you must:
     1.  Update or create the corresponding file in `e2e/page-objects/`.
     2.  Ensure selectors are resilient (prefer data-attributes like `data-testid` over CSS classes).
-* **E2E / Integration Tests:** The `apps/e2e` directory targets the Vite app (`apps/app`) on `http://localhost:5173`. Ensure that new features are accompanied by a Playwright test script utilizing the updated page objects.
+* **E2E / Integration Tests:** The `apps/e2e` directory holds one Playwright project per app: `app` drives the Vite app (`apps/app`) on `http://127.0.0.1:5173`, and `www` drives the Next.js marketing site (`apps/www`) on `http://127.0.0.1:3100`. Specs live in `specs/<app>/` and page objects in `page-objects/<app>/`; each project pins its own `baseURL`, so put a spec in the directory of the app it asserts against. Ensure that new features are accompanied by a Playwright test script utilizing the updated page objects.
 * **Unit Tests:** New utility functions or business logic in `packages/api` or `apps/app` must have a corresponding `.test.ts` file for Vitest.
 
 ## 6. Styling & Components

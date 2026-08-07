@@ -82,20 +82,26 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Install Playwright browsers
-        # Only chromium — it is the sole project in playwright.config.ts.
+        # Only chromium — both projects (app, www) use Desktop Chrome.
         run: pnpm --filter e2e exec playwright install --with-deps chromium
 
       - name: E2E
         run: pnpm test:e2e
         env:
-          # Placeholder, not a secret — same rationale as the build job above.
-          # `apps/app` validates VITE_CONVEX_URL at startup and throws on a
-          # malformed one, so the shape has to be right; it is never connected
-          # to, because the specs assert only on statically-rendered chrome.
-          # Giving this suite a real deployment is what §8 of
+          # Placeholders, not secrets — same rationale as the build job above.
+          # `apps/app` validates VITE_CONVEX_URL at startup and `apps/www`'s
+          # env.ts requires a well-formed NEXT_PUBLIC_CONVEX_URL, so the shape
+          # has to be right; neither is ever connected to, because the specs
+          # assert only on statically-rendered chrome and client-side animation
+          # state. Giving this suite a real deployment is what §8 of
           # docs/e2e-architecture.md is about — do that before writing any spec
           # that reads or writes messages.
+          #
+          # The Clerk and PostHog keys are deliberately NOT set: both apps treat
+          # them as optional and skip those surfaces entirely when absent, and
+          # no spec may depend on them.
           VITE_CONVEX_URL: https://ci-e2e-placeholder.convex.cloud
+          NEXT_PUBLIC_CONVEX_URL: https://ci-e2e-placeholder.convex.cloud
 
       - name: Upload report
         # Only useful when something failed; the run is otherwise silent.

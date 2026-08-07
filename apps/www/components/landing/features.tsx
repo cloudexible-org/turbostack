@@ -122,6 +122,7 @@ function FeatureCard({
 
   return (
     <motion.div
+      data-testid="feature-card"
       variants={revealItem}
       onMouseMove={handleMouseMove}
       whileHover={{ y: -4 }}

@@ -2,7 +2,10 @@
   "extends": "@repo/config/base.json",
   "compilerOptions": {
     "target": "ES2023",
-    "lib": ["ES2023"],
+    // DOM is required even though the suite runs in Node: the callbacks passed
+    // to `page.evaluate` / `locator.evaluate` are serialised and executed in the
+    // browser, so they reference `window`, `document` and `getComputedStyle`.
+    "lib": ["ES2023", "DOM"],
     "module": "ESNext",
     "types": ["node"],
     "noEmit": true,

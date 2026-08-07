@@ -34,6 +34,7 @@ export function SiteNav(): React.ReactNode {
 
   return (
     <motion.nav
+      data-testid="site-nav"
       initial={{ y: -64, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
@@ -104,6 +105,7 @@ export function SiteNav(): React.ReactNode {
 
       {/* Reading progress for the full page. */}
       <motion.div
+        data-testid="reading-progress"
         style={{ scaleX: progress }}
         className="absolute bottom-0 left-0 h-px w-full origin-left bg-gradient-to-r from-primary to-accent"
       />

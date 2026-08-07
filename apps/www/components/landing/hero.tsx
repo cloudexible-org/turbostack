@@ -32,6 +32,7 @@ export function Hero(): React.ReactNode {
       <BackdropGlow />
 
       <motion.div
+        data-testid="hero-content"
         style={{ y, opacity }}
         variants={revealGroup}
         initial="hidden"

@@ -6,7 +6,12 @@ import * as React from "react";
 import { Button } from "@/components/ui/button";
 
 export function ThemeToggle() {
-  const { theme, setTheme } = useTheme();
+  // `resolvedTheme`, not `theme`: with `defaultTheme="system"` the initial
+  // `theme` is the literal string "system", so `theme === "light"` was false on
+  // a light system and the first click set "light" — the theme it already was,
+  // making the toggle appear dead until a second click. `resolvedTheme` is
+  // always the concrete "light" | "dark" actually in effect.
+  const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
 
   // Prevent hydration mismatch
@@ -27,7 +32,7 @@ export function ThemeToggle() {
       variant="ghost"
       size="icon"
       className="w-9 h-9"
-      onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+      onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
     >
       <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
       <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />

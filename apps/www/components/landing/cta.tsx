@@ -26,6 +26,7 @@ export function Cta(): React.ReactNode {
   return (
     <section
       ref={sectionRef}
+      data-testid="cta"
       className="relative w-full overflow-hidden px-6 py-32"
     >
       <motion.div

@@ -21,7 +21,10 @@ const STACK = [
 
 export function StackMarquee(): React.ReactNode {
   return (
-    <section className="w-full border-border/40 border-y bg-muted/30 py-12">
+    <section
+      data-testid="stack-marquee"
+      className="w-full border-border/40 border-y bg-muted/30 py-12"
+    >
       <Reveal className="mb-8 text-center">
         <Typography
           variant="small"

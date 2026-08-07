@@ -40,6 +40,7 @@ export function Reveal({
 }): React.ReactNode {
   return (
     <motion.div
+      data-testid="reveal"
       className={className}
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}

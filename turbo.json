@@ -23,16 +23,19 @@
       "dependsOn": ["^build"]
     },
     "e2e#test": {
-      // Not cached, and deliberately so. `e2e` does not depend on `app` in the
-      // workspace graph, so apps/app's sources are not part of this task's hash
-      // — a cached pass would be replayed unchanged after a UI regression. The
-      // suite also drives its own Vite server from source, so it needs no
-      // upstream build.
+      // Not cached, and deliberately so. `e2e` does not depend on `app` or
+      // `www` in the workspace graph, so their sources are not part of this
+      // task's hash — a cached pass would be replayed unchanged after a UI
+      // regression. The suite also drives both dev servers from source, so it
+      // needs no upstream build.
       "cache": false,
       "dependsOn": [],
-      // Turbo 2 runs strict env mode: undeclared vars are not passed through,
-      // and apps/app throws at startup without this one.
-      "env": ["VITE_CONVEX_URL"]
+      // Turbo 2 runs strict env mode: undeclared vars are not passed through.
+      // apps/app throws at startup without VITE_CONVEX_URL, and apps/www's
+      // env.ts requires a well-formed NEXT_PUBLIC_CONVEX_URL. The Clerk and
+      // PostHog keys are optional in both apps and are deliberately omitted —
+      // no spec may depend on them being set.
+      "env": ["VITE_CONVEX_URL", "NEXT_PUBLIC_CONVEX_URL"]
     },
     "dev": {
       "cache": false,

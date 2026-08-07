@@ -19,7 +19,7 @@ const PROOF_POINTS = [
 
 export function BuiltWith(): React.ReactNode {
   return (
-    <section className="w-full px-6 py-24 sm:py-32">
+    <section data-testid="built-with" className="w-full px-6 py-24 sm:py-32">
       <div className="mx-auto grid max-w-5xl items-center gap-12 lg:grid-cols-2">
         <Reveal className="flex flex-col items-start gap-5">
           <Typography
