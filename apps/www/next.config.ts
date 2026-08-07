@@ -18,6 +18,14 @@ const nextConfig: NextConfig = {
   //
   // Docker builds set no VERCEL var, so they still get standalone output.
   output: process.env.VERCEL ? undefined : "standalone",
+  // Next 16 keeps a dev lock at `<distDir>/lock`, so two `next dev` processes
+  // on the same distDir refuse to run — "Another next dev server is already
+  // running", and a different port does not help because the lock is on the
+  // directory, not the port. The e2e suite therefore builds into its own
+  // distDir (`NEXT_DIST_DIR=.next-e2e`, set in apps/e2e/playwright.config.ts),
+  // which gives it its own lock and lets the suite run while `pnpm dev` is up.
+  // Unset everywhere else, so dev, CI, Docker and Vercel all use `.next`.
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   transpilePackages: ["@repo/ui", "@repo/api"],
   // `pnpm dev` serves this app through portless at https://www.turbostack.localhost,
   // which Next treats as cross-origin: it blocks /_next dev resources (including the

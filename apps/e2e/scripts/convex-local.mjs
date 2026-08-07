@@ -65,14 +65,39 @@ const devEnvBefore = fs.existsSync(DEV_ENV_FILE)
   ? fs.readFileSync(DEV_ENV_FILE, "utf-8")
   : null;
 
+/**
+ * True when the file has been repointed at a *local* backend — the specific
+ * damage this watcher exists to undo.
+ *
+ * Deliberately narrow. A blanket "restore whenever it differs" would also
+ * revert a legitimate concurrent write, and a concurrent write is now expected:
+ * the whole point of the port and distDir work is that `pnpm dev` can be
+ * running, and its own `convex dev` owns this file.
+ */
+function repointedAtLocalBackend(content) {
+  return (
+    /^CONVEX_DEPLOYMENT=(local:|anonymous)/m.test(content) ||
+    /^CONVEX_URL=https?:\/\/(127\.0\.0\.1|localhost)/m.test(content)
+  );
+}
+
 function restoreDevEnv() {
   try {
     if (devEnvBefore === null) {
-      if (fs.existsSync(DEV_ENV_FILE)) fs.unlinkSync(DEV_ENV_FILE);
-    } else if (fs.readFileSync(DEV_ENV_FILE, "utf-8") !== devEnvBefore) {
+      // Nothing there before: only remove a file that is ours.
+      if (
+        fs.existsSync(DEV_ENV_FILE) &&
+        repointedAtLocalBackend(fs.readFileSync(DEV_ENV_FILE, "utf-8"))
+      ) {
+        fs.unlinkSync(DEV_ENV_FILE);
+      }
+      return;
+    }
+    const now = fs.readFileSync(DEV_ENV_FILE, "utf-8");
+    if (now !== devEnvBefore && repointedAtLocalBackend(now)) {
       fs.writeFileSync(DEV_ENV_FILE, devEnvBefore);
       console.log(
-        "↩︎  restored packages/api/.env.local (convex dev rewrote it)",
+        "↩︎  restored packages/api/.env.local (convex dev repointed it at the local backend)",
       );
     }
   } catch {
@@ -84,7 +109,20 @@ fs.watchFile(DEV_ENV_FILE, { interval: 500 }, restoreDevEnv);
 
 const child = spawn(
   "npx",
-  ["convex", "dev", "--typecheck", "disable", "--tail-logs", "disable"],
+  [
+    "convex",
+    "dev",
+    "--typecheck",
+    "disable",
+    // Codegen writes packages/api/convex/_generated/. A developer's own
+    // `convex dev` owns those files, and two processes regenerating them
+    // concurrently churns the working tree for no benefit — the suite reaches
+    // its functions by string name and never imports the generated API.
+    "--codegen",
+    "disable",
+    "--tail-logs",
+    "disable",
+  ],
   {
     cwd: BACKEND_DIR,
     stdio: "inherit",

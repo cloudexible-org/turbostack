@@ -1,5 +1,6 @@
 import { defineConfig, devices, type Project } from "@playwright/test";
 import { convexEnabled } from "./convex-enabled";
+import { stablePorts } from "./free-port";
 import { ensureLocalDeployment, localBackendUrl } from "./local-backend";
 
 /**
@@ -33,8 +34,24 @@ const CONVEX_URL = WITH_CONVEX ? localBackendUrl() : undefined;
  */
 const VITE_CONVEX_URL = CONVEX_URL ?? "https://ci-e2e-placeholder.convex.cloud";
 
-const APP_URL = "http://127.0.0.1:5173";
-const WWW_URL = "http://127.0.0.1:3100";
+/**
+ * The suite runs on ports the OS hands us, never fixed ones, so it can run
+ * while `pnpm dev` is up — that serves `apps/app` on 5173, which this used to
+ * claim.
+ *
+ * Memoised through the environment because Playwright re-evaluates this file in
+ * every worker process; see `free-port.ts` for why allocating directly here
+ * makes every spec fail with `ERR_CONNECTION_REFUSED` at a different port.
+ */
+const [APP_PORT, WWW_PORT] = stablePorts(["E2E_APP_PORT", "E2E_WWW_PORT"]);
+const APP_URL = `http://127.0.0.1:${APP_PORT}`;
+const WWW_URL = `http://127.0.0.1:${WWW_PORT}`;
+
+/**
+ * A distDir of the suite's own, so its `next dev` does not contend with a
+ * developer's for the lock at `<distDir>/lock`. See `apps/www/next.config.ts`.
+ */
+const WWW_DIST_DIR = ".next-e2e";
 
 const projects: Project[] = [
   {
@@ -96,14 +113,16 @@ export default defineConfig({
       // pnpm → portless → vite, so Playwright killed the wrapper, vite survived
       // reparented to PID 1 still holding 5173, and teardown timed out after
       // every test had already passed. See `docs/e2e-architecture.md` §3.
-      command: "pnpm exec vite --port 5173 --strictPort",
+      command: `pnpm exec vite --port ${APP_PORT} --strictPort`,
       cwd: "../app",
       url: APP_URL,
-      // Never adopt a developer's running `pnpm dev`: it carries the
-      // VITE_CONVEX_URL from apps/app/.env.local — your *cloud* deployment —
+      // Never adopt a server we did not start: a developer's `pnpm dev` carries
+      // the VITE_CONVEX_URL from apps/app/.env.local — your *cloud* deployment —
       // so the suite would assert against cloud data while global setup seeded
       // the local backend, and every assertion would measure the wrong
-      // database. With `--strictPort`, a busy port fails loudly instead.
+      // database. The port is ours alone, so this should never trigger; with
+      // `--strictPort` a lost race is a loud failure rather than a silent
+      // attachment to something else.
       reuseExistingServer: false,
       // Overrides whatever apps/app/.env.local says. This is the whole reason
       // running the suite cannot disturb your dev setup, and vice versa.
@@ -113,16 +132,18 @@ export default defineConfig({
       stderr: "pipe",
     },
     {
-      // Next as a direct child too, for the same teardown reason. Port 3100
-      // rather than 3000 so a developer's own `next dev` cannot be adopted.
+      // Next as a direct child too, for the same teardown reason.
       //
-      // Note Next 16 keeps a per-project dev lockfile: if `pnpm dev` is already
-      // running, this dies with "Another next dev server is already running"
-      // and a different port does NOT help. Stop your dev server first.
-      command: "pnpm exec next dev --port 3100",
+      // `NEXT_DIST_DIR` is what lets this coexist with a running `pnpm dev`:
+      // Next 16's dev lock lives at `<distDir>/lock`, so two `next dev`
+      // processes sharing `.next` refuse to start and a different port does not
+      // help. Giving the suite its own distDir gives it its own lock.
+      command: `pnpm exec next dev --port ${WWW_PORT}`,
       cwd: "../www",
       url: WWW_URL,
       reuseExistingServer: false,
+      env: { NEXT_DIST_DIR: WWW_DIST_DIR },
+      // A cold `.next-e2e` compiles from scratch on the first request.
       timeout: 180_000,
       stdout: "ignore",
       stderr: "pipe",

@@ -113,16 +113,30 @@ export function ensureLocalDeployment(): void {
   // reads like a deleted deployment and is not one: the deployment is live and
   // is what `pnpm dev` uses.
   withDevEnvProtected(() => {
-    execFileSync("npx", ["convex", "dev", "--once", "--typecheck", "disable"], {
-      cwd: BACKEND_DIR,
-      stdio: "inherit",
-      env: {
-        ...process.env,
-        CONVEX_AGENT_MODE: "anonymous",
-        CONVEX_DEPLOYMENT: "",
-        CONVEX_DEPLOY_KEY: "",
+    execFileSync(
+      "npx",
+      [
+        "convex",
+        "dev",
+        "--once",
+        "--typecheck",
+        "disable",
+        // See scripts/convex-local.mjs — a developer's own `convex dev` owns
+        // convex/_generated/, and the suite never imports it.
+        "--codegen",
+        "disable",
+      ],
+      {
+        cwd: BACKEND_DIR,
+        stdio: "inherit",
+        env: {
+          ...process.env,
+          CONVEX_AGENT_MODE: "anonymous",
+          CONVEX_DEPLOYMENT: "",
+          CONVEX_DEPLOY_KEY: "",
+        },
       },
-    });
+    );
   });
 
   if (!readLocalConfig()) {

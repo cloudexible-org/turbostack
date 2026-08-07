@@ -15,8 +15,8 @@ what would bring it back.
 | | |
 |---|---|
 | Runner | Playwright (`apps/e2e`, package name `e2e`) |
-| Project `app` | `apps/app` — Vite + React — on `http://127.0.0.1:5173` |
-| Project `www` | `apps/www` — Next.js — on `http://127.0.0.1:3100` |
+| Project `app` | `apps/app` — Vite + React — on a free port |
+| Project `www` | `apps/www` — Next.js — on a free port, `distDir` `.next-e2e` |
 | Project `app-convex` | `apps/app` against a real, seeded Convex local backend |
 | Backend | Convex (`packages/api/convex`), local deployment only |
 | Auth | None. `auth.config.ts` ships `providers: []` on purpose |
@@ -42,11 +42,9 @@ E2E_CONVEX=0 pnpm test:e2e                 # skip the backend (how CI runs)
 pnpm --filter e2e convex:local             # just the backend, for poking at data
 ```
 
-**Stop `pnpm dev` first.** Next 16 keeps a per-project dev lockfile, so a
-running `next dev` makes the suite's own Next server die at startup with
-*"Another next dev server is already running"*. A different port does not help —
-the lock is per project directory — and the error never mentions e2e, so it
-reads as a mystery the first time.
+**You do not need to stop `pnpm dev`.** The suite is deliberately independent of
+it — see §1b. That was not always true, and the three things that made it true
+are easy to undo by accident.
 
 ---
 
@@ -129,6 +127,50 @@ to fire, nothing is seeded and no data is destroyed.
 
 ---
 
+## 1b. Why the suite can run alongside `pnpm dev`
+
+`pnpm dev` serves `apps/app` on 5173, `apps/www` through portless, and points
+`packages/api` at the **cloud** Convex deployment. The suite has to avoid all
+three without asking you to shut anything down.
+
+| Collision | How it is avoided |
+|---|---|
+| Vite's port (5173) | The suite asks the OS for free ports (`free-port.ts`) |
+| Next's dev lock | Its own `distDir` (`.next-e2e`) — the lock is `<distDir>/lock` |
+| Convex deployment | Its own local, anonymous backend on its own port |
+| `convex/_generated/` churn | `convex dev --codegen disable` on the e2e backend |
+| `packages/api/.env.local` | Snapshot + watch + restore, scoped to local repointing |
+
+Three of those repay a closer look:
+
+- **The Next lock is per `distDir`, not per directory.** `next dev` acquires
+  `<distDir>/lock`, so a second one on the same `.next` exits with *"Another
+  next dev server is already running"* — and a different **port does not help**,
+  which is what makes it confusing. `NEXT_DIST_DIR=.next-e2e` gives the suite
+  its own lock. Everything else (dev, CI, Docker, Vercel) still uses `.next`.
+
+- **Free ports must be allocated once per run, not once per process.**
+  Playwright evaluates `playwright.config.ts` in the runner *and again in every
+  worker*. Allocating directly in the config gives each worker its own ports
+  while the servers listen on the runner's, and every spec fails with
+  `ERR_CONNECTION_REFUSED` at a *different* high-numbered port. `stablePorts()`
+  memoises through the environment, which workers inherit. This was hit for
+  real on 2026-08-07 — the symptom is unmistakable afterwards and mystifying
+  before.
+
+- **The `.env.local` watcher must not be a blanket restore.** Now that a
+  developer's own `convex dev` may be running and legitimately writing that
+  file, the watcher only reverts a change that repoints it at a *local* backend
+  (`CONVEX_DEPLOYMENT=local:`/`anonymous`, or a `127.0.0.1` `CONVEX_URL`).
+  Restoring on any difference would clobber a concurrent, correct write.
+
+Verified on 2026-08-07 by running the full suite with `pnpm dev` up: 15/15
+passed, Vite kept serving 200 on 5173, `packages/api/.env.local` was
+byte-identical and still selected the cloud deployment, `convex dev` logged no
+errors, and `convex/_generated/` had no uncommitted churn.
+
+---
+
 ## 2. Known defects — all fixed 2026-07-28
 
 Measured by running the suite on 2026-07-28, and fixed the same day. Kept here
@@ -193,10 +235,11 @@ command: "PORTLESS=0 pnpm --filter app dev",
 the chain was **pnpm → portless → vite**. Verified at the time: after a run, a
 `vite.js` process remained with `PPID 1`.
 
-The server is now a **direct child**:
+The server is now a **direct child**, on a port allocated for the run rather
+than the fixed 5173 it used to claim (see §1b):
 
 ```ts
-command: "pnpm exec vite --port 5173 --strictPort",
+command: `pnpm exec vite --port ${APP_PORT} --strictPort`,
 cwd: "../app",
 ```
 
@@ -414,8 +457,9 @@ They will. Handle it like this:
   note a pipeline's exit code is the *last* command's, so `playwright | tail`
   always exits 0. Capture Playwright's own exit code or you will report a red
   run as green.
-- **Check for orphaned servers at the end of a session** (`lsof -ti :5173`)
-  until §3 is fixed.
+- **Check for orphaned servers at the end of a session.** The suite's ports
+  change per run, so read them from the failure output rather than assuming
+  5173 — that is now your *dev* server and must be left alone.
 - **Scratch files go in `.scratch/<task-name>/`**, per `CLAUDE.md` §2.
 
 ---
@@ -454,7 +498,9 @@ assumed. Listed with the trigger that would make each relevant again.
 | Symptom | Likely cause |
 |---|---|
 | Suite hangs after the last test passes | Orphaned webServer process tree (§3) |
-| `EADDRINUSE` / stale content on 5173 | Orphan from a previous run (§3) |
+| `EADDRINUSE` on the suite's port | Orphan from a previous run (§3) |
+| Every spec fails `ERR_CONNECTION_REFUSED`, each on a *different* port | Ports allocated per worker instead of per run (§1b) |
+| "Another next dev server is already running" | The suite lost its own `distDir`; the lock is `<distDir>/lock` (§1b) |
 | Test passes alone, fails in parallel | Shared `messages` rows (§8) |
 | Everything green but proving nothing | Reused dev server on a different `VITE_CONVEX_URL` (§3) |
 | `getByLabel` finds nothing | Labels not associated with inputs (§6) |
