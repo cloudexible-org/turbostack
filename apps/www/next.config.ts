@@ -1,7 +1,23 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "standalone",
+  // `standalone` exists for `apps/www/Dockerfile`, which copies `.next/standalone`.
+  // Vercel does not use it — it builds through its own Build Output API — and on
+  // Next 16.3 the two are actively incompatible there:
+  //
+  //   Error: ENOENT: no such file or directory, open '.next/next-server.js.nft.json'
+  //
+  // Next only runs its file-tracing step when the bundler is not Turbopack
+  // (`next/dist/build/index.js`, the `// #region NFT` block), while the standalone
+  // writer unconditionally reads `next-server.js.nft.json`
+  // (`next/dist/build/utils.js`). A local `next build` still produces the file via
+  // the parallel tracing path, so this fails *only* on Vercel — a green local
+  // build is not evidence either way. Next's own source anticipates the clash:
+  // "in the future output: standalone might not be allowed if an adapter with
+  // onBuildComplete is configured", and Vercel supplies exactly such an adapter.
+  //
+  // Docker builds set no VERCEL var, so they still get standalone output.
+  output: process.env.VERCEL ? undefined : "standalone",
   transpilePackages: ["@repo/ui", "@repo/api"],
   // `pnpm dev` serves this app through portless at https://www.turbostack.localhost,
   // which Next treats as cross-origin: it blocks /_next dev resources (including the
