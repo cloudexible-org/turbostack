@@ -25,7 +25,7 @@ catalogs:
       specifier: ^1.43.0
       version: 1.43.0
     postcss:
-      specifier: ^8.5.26
+      specifier: ^8.5.25
       version: 8.5.26
     react:
       specifier: ^19.2.8
