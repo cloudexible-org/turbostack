@@ -39,6 +39,9 @@ next-env.d.ts
 
 # convex
 convex/_generated
+# Local deployment state: ports, admin key and deployment name, all specific to
+# one machine. apps/e2e reads the port and identity from here.
+.convex/
 
 *storybook.log
 storybook-static

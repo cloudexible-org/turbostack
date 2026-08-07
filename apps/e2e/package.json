@@ -6,12 +6,14 @@
     "test": "playwright test",
     "test:ui": "playwright test --ui",
     "test:report": "playwright show-report",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "convex:local": "node scripts/convex-local.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",
     "@repo/config": "workspace:*",
     "@types/node": "catalog:",
+    "convex": "catalog:",
     "typescript": "catalog:"
   }
 }

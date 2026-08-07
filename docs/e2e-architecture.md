@@ -17,7 +17,8 @@ what would bring it back.
 | Runner | Playwright (`apps/e2e`, package name `e2e`) |
 | Project `app` | `apps/app` — Vite + React — on `http://127.0.0.1:5173` |
 | Project `www` | `apps/www` — Next.js — on `http://127.0.0.1:3100` |
-| Backend | Convex (`packages/api/convex`) |
+| Project `app-convex` | `apps/app` against a real, seeded Convex local backend |
+| Backend | Convex (`packages/api/convex`), local deployment only |
 | Auth | None. `auth.config.ts` ships `providers: []` on purpose |
 | Page objects | `apps/e2e/page-objects/<app>/` |
 | Specs | `apps/e2e/specs/<app>/` |
@@ -35,9 +36,96 @@ upgrade was held back from the routine dependency sweep — see §9.
 Run it:
 
 ```bash
-pnpm test:e2e                              # both projects
+pnpm test:e2e                              # every project
 pnpm --filter e2e exec playwright test --project=www
+E2E_CONVEX=0 pnpm test:e2e                 # skip the backend (how CI runs)
+pnpm --filter e2e convex:local             # just the backend, for poking at data
 ```
+
+**Stop `pnpm dev` first.** Next 16 keeps a per-project dev lockfile, so a
+running `next dev` makes the suite's own Next server die at startup with
+*"Another next dev server is already running"*. A different port does not help —
+the lock is per project directory — and the error never mentions e2e, so it
+reads as a mystery the first time.
+
+---
+
+## 1a. The Convex backend
+
+The `app-convex` project runs against a **local** Convex deployment, never a
+cloud one: global setup wipes the database to reseed it, and the local backend
+is the only one that is disposable. It is also anonymous — no Convex account —
+so anyone who clones this template can run the suite.
+
+`E2E_CONVEX=0` drops the backend, its webServer and the `app-convex` project.
+CI sets it: provisioning a backend on a cold runner for every push is not worth
+it, and the `app` and `www` projects assert only statically-rendered chrome and
+client-side behaviour, so they still run there.
+
+### The port is not 3210, and assuming it is can wipe another project
+
+Convex allocates a `(cloud, site)` port pair **per local deployment** and
+records it in that deployment's own `.convex/local/default/config.json`.
+Whoever boots first keeps 3210; the second Convex project on the machine gets
+3212/3213, the third 3214/3215.
+
+Hard-coding 3210 is a data-loss bug, not a shortcut. Playwright's
+`webServer.url` health check only asks *"is something answering here?"* — it
+cannot tell one Convex backend from another. So: the other project's backend
+answers on 3210 → `reuseExistingServer` sees a live server, so ours never
+starts → the app under test is handed that URL → global setup wipes the
+database to seed it. Every step succeeds, and the run goes green while pointed
+at, and destroying, the wrong database.
+
+`apps/e2e/local-backend.ts` therefore reads the port from `config.json` and is
+the single place that does. `CONVEX_URL` overrides it but has **no default** —
+a default in a `.env` is what let the right answer and the wrong one coexist in
+the project this pattern came from, and `apps/e2e/.env` is not even loaded when
+Playwright evaluates its config.
+
+### Two guards, because a name is not enough
+
+`assertLocalBackendIdentity()` runs before anything writes:
+
+1. **`/instance_name` vs `config.json`.** Fast and readable, and catches a
+   *named* deployment (`local-<team>-<project>`) on the wrong port.
+2. **An admin-key `ping` against our own internal function.** This is the half
+   that actually holds. The Convex CLI names *every* anonymous agent-mode
+   deployment `anonymous-agent`, so two projects built from this template would
+   agree on the name while being different databases. Admin keys are
+   per-deployment, so a foreign backend rejects ours.
+
+Guard 2 retries for 45s, because `/version` answers as soon as the backend
+process is up and before `convex dev` has finished pushing functions. That wait
+is only ever paid on the error path.
+
+### `convex dev` rewrites `packages/api/.env.local`
+
+Configuring a local deployment rewrites `CONVEX_DEPLOYMENT` to the local one and
+injects `CONVEX_URL` / `CONVEX_SITE_URL` — silently repointing an ordinary
+`pnpm dev` at the disposable e2e backend. The file is gitignored, so nothing
+flags it, and the failure it causes later (a dev app on an empty database) looks
+unrelated. Observed here on 2026-08-07, not assumed.
+
+`scripts/convex-local.mjs` snapshots the file, `fs.watchFile`s it and restores
+on change, and restores again on exit. Restoring only on exit would leave it
+wrong for the whole run — exactly when someone might restart `pnpm dev`.
+
+### Verifying the guards
+
+Do **not** verify by running the suite and seeing green — green is what the bug
+produces. Test the guard directly with a stub standing in for a foreign backend
+(one was used at `.scratch/convex-guard/` on 2026-08-07):
+
+| Case | Setup | Expected |
+|---|---|---|
+| A | Stub reporting a foreign name | refused, naming expected **and** found |
+| A2 | Stub reporting `anonymous-agent` | refused by the admin-key ping |
+| B | Nothing listening | refused, quoting **your** allocated port |
+| C | Your real backend | passes, proceeds to seed |
+
+Set `SKIP_SEED_IMPORT=true` while testing, as a second net: if the guard fails
+to fire, nothing is seeded and no data is destroyed.
 
 ---
 

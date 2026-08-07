@@ -31,11 +31,24 @@
       "cache": false,
       "dependsOn": [],
       // Turbo 2 runs strict env mode: undeclared vars are not passed through.
-      // apps/app throws at startup without VITE_CONVEX_URL, and apps/www's
-      // env.ts requires a well-formed NEXT_PUBLIC_CONVEX_URL. The Clerk and
-      // PostHog keys are optional in both apps and are deliberately omitted —
-      // no spec may depend on them being set.
-      "env": ["VITE_CONVEX_URL", "NEXT_PUBLIC_CONVEX_URL"]
+      // apps/www's env.ts requires a well-formed NEXT_PUBLIC_CONVEX_URL. The
+      // Clerk and PostHog keys are optional in both apps and are deliberately
+      // omitted — no spec may depend on them being set.
+      //
+      // VITE_CONVEX_URL is NOT listed: playwright.config.ts sets it on the Vite
+      // webServer itself, either to the local Convex backend or to a
+      // placeholder, and inheriting a developer's value here would point the
+      // suite at their cloud deployment.
+      //
+      // E2E_CONVEX=0 drops the Convex backend and its specs (CI). CONVEX_URL
+      // and SKIP_SEED_IMPORT are escape hatches documented in
+      // apps/e2e/local-backend.ts and fixtures/global-setup.ts.
+      "env": [
+        "NEXT_PUBLIC_CONVEX_URL",
+        "E2E_CONVEX",
+        "CONVEX_URL",
+        "SKIP_SEED_IMPORT"
+      ]
     },
     "dev": {
       "cache": false,

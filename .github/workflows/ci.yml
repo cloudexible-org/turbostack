@@ -88,6 +88,13 @@ jobs:
       - name: E2E
         run: pnpm test:e2e
         env:
+          # No Convex local backend in CI. Starting one means downloading the
+          # backend binary and provisioning a deployment on a cold runner for
+          # every push. With this off, the `app` and `www` projects still run —
+          # they assert only statically-rendered chrome and client-side
+          # behaviour — and the `app-convex` project, which needs real seeded
+          # data, is not registered at all. Run it locally with `pnpm test:e2e`.
+          E2E_CONVEX: "0"
           # Placeholders, not secrets — same rationale as the build job above.
           # `apps/app` validates VITE_CONVEX_URL at startup and `apps/www`'s
           # env.ts requires a well-formed NEXT_PUBLIC_CONVEX_URL, so the shape

@@ -9,6 +9,8 @@
  */
 
 import type * as messages from "../messages.js";
+import type * as seed_e2e_fixture from "../seed/e2e/fixture.js";
+import type * as seed_e2e_mutations from "../seed/e2e/mutations.js";
 
 import type {
   ApiFromModules,
@@ -18,6 +20,8 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   messages: typeof messages;
+  "seed/e2e/fixture": typeof seed_e2e_fixture;
+  "seed/e2e/mutations": typeof seed_e2e_mutations;
 }>;
 
 /**

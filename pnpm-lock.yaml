@@ -141,6 +141,9 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 26.1.2
+      convex:
+        specifier: 'catalog:'
+        version: 1.43.0(@clerk/clerk-react@5.61.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@clerk/react@6.13.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react@19.2.8)
       typescript:
         specifier: 'catalog:'
         version: 7.0.2

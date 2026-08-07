@@ -33,4 +33,34 @@ export class HomePage {
   getSendButton() {
     return this.page.getByRole("button", { name: "Send", exact: true });
   }
+
+  // --- Convex-backed surfaces ---------------------------------------------
+  //
+  // Only meaningful when the suite runs against a seeded local backend (the
+  // `app-convex` project). With the CI placeholder URL the query never
+  // resolves and the list stays on "Loading…" forever.
+
+  /** One `<li>` per message. Also matches the loading and empty placeholders. */
+  getMessageItems() {
+    return this.page.getByRole("listitem");
+  }
+
+  /** A specific message by its exact body text. */
+  getMessage(body: string) {
+    return this.page.getByRole("listitem").filter({ hasText: body });
+  }
+
+  getLoadingPlaceholder() {
+    return this.page.getByText("Loading…", { exact: true });
+  }
+
+  /**
+   * Sends a message and waits for the input to clear, which `App.tsx` does
+   * synchronously before awaiting the mutation — so this returns before the
+   * write has necessarily landed. Assert on the list, not on this.
+   */
+  async sendMessage(body: string) {
+    await this.getMessageInput().fill(body);
+    await this.getSendButton().click();
+  }
 }
