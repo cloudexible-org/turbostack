@@ -23,7 +23,7 @@
     "lefthook": "^2.1.10",
     "portless": "^0.15.5",
     "turbo": "latest",
-    "turbo-ignore": "^2.10.8",
+    "turbo-ignore": "^2.10.9",
     "typescript": "catalog:"
   },
   "pnpm": {
