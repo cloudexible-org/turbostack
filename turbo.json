@@ -28,33 +28,35 @@
     "test": {
       "dependsOn": ["^build"]
     },
-    "e2e#test": {
-      // Not cached, and deliberately so. `e2e` does not depend on `app` or
-      // `www` in the workspace graph, so their sources are not part of this
-      // task's hash — a cached pass would be replayed unchanged after a UI
-      // regression. The suite also drives both dev servers from source, so it
-      // needs no upstream build.
+    "e2e-app#test": {
+      // Not cached, and deliberately so. `e2e-app` does not depend on `app` in
+      // the workspace graph, so its sources are not part of this task's hash —
+      // a cached pass would be replayed unchanged after a UI regression. The
+      // suite also drives the dev server from source, so it needs no upstream
+      // build.
       "cache": false,
       "dependsOn": [],
       // Turbo 2 runs strict env mode: undeclared vars are not passed through.
-      // apps/www's env.ts requires a well-formed NEXT_PUBLIC_CONVEX_URL. The
-      // Clerk and PostHog keys are optional in both apps and are deliberately
-      // omitted — no spec may depend on them being set.
       //
       // VITE_CONVEX_URL is NOT listed: playwright.config.ts sets it on the Vite
-      // webServer itself, either to the local Convex backend or to a
+      // webServer itself, either to this run's local Convex backend or to a
       // placeholder, and inheriting a developer's value here would point the
-      // suite at their cloud deployment.
+      // suite at their cloud deployment. The E2E_*_PORT variables are not
+      // listed either: each run allocates its own, which is what lets several
+      // worktrees run the suite at once.
       //
       // E2E_CONVEX=0 drops the Convex backend and its specs (CI). CONVEX_URL
       // and SKIP_SEED_IMPORT are escape hatches documented in
-      // apps/e2e/local-backend.ts and fixtures/global-setup.ts.
-      "env": [
-        "NEXT_PUBLIC_CONVEX_URL",
-        "E2E_CONVEX",
-        "CONVEX_URL",
-        "SKIP_SEED_IMPORT"
-      ]
+      // apps/e2e-app/local-backend.ts and fixtures/global-setup.ts.
+      "env": ["E2E_CONVEX", "CONVEX_URL", "SKIP_SEED_IMPORT"]
+    },
+    "e2e-www#test": {
+      // Uncached for the same reason as e2e-app#test: `www` is not in this
+      // task's hash. The Clerk and PostHog keys are deliberately not passed —
+      // no spec may depend on them — and NEXT_PUBLIC_CONVEX_URL is not needed:
+      // playwright.config.ts sets a placeholder, since nothing connects to it.
+      "cache": false,
+      "dependsOn": []
     },
     "dev": {
       "cache": false,

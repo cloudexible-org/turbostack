@@ -119,7 +119,7 @@ To sync Clerk auth with your Convex backend:
 - **Lint & Format:** `pnpm lint` / `pnpm format` / `pnpm check` (Biome).
 - **Typecheck:** `pnpm typecheck` (per-package `tsc --noEmit`).
 - **Unit tests:** `pnpm test` (Storybook component tests in a real browser; excludes e2e).
-- **E2E tests:** `pnpm --filter e2e test` (Playwright; bypasses Portless via `PORTLESS=0`).
+- **E2E tests:** `pnpm test:e2e` runs both Playwright suites; `pnpm test:e2e:app` / `pnpm test:e2e:www` run one. Safe to run from several git worktrees at once.
 - **Storybook:** `pnpm storybook` (visualize shared components).
 - **Build:** `pnpm build` (optimized production build for all apps).
 

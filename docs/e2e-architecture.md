@@ -1,7 +1,8 @@
 # E2E Test Architecture
 
-How the Playwright suite in `apps/e2e` is meant to work, what is actually true
-today, and the failure modes worth knowing before writing a spec.
+How the Playwright suites in `apps/e2e-app` and `apps/e2e-www` are meant to
+work, what is actually true today, and the failure modes worth knowing before
+writing a spec.
 
 Adapted from an external playbook written for a Next.js + Clerk + multi-tenant
 app. The parts that assumed that stack have been dropped — see
@@ -14,20 +15,22 @@ what would bring it back.
 
 | | |
 |---|---|
-| Runner | Playwright (`apps/e2e`, package name `e2e`) |
-| Project `app` | `apps/app` — Vite + React — on a free port |
-| Project `www` | `apps/www` — Next.js — on a free port, `distDir` `.next-e2e` |
-| Project `app-convex` | `apps/app` against a real, seeded Convex local backend |
+| Runner | Playwright — one package per app |
+| `apps/e2e-app` → project `app` | `apps/app` — Vite + React — on a free port |
+| `apps/e2e-app` → project `app-convex` | `apps/app` against a real, seeded Convex local backend |
+| `apps/e2e-www` → project `www` | `apps/www` — Next.js — on a free port, `distDir` `.next-e2e` |
+| Shared harness | `packages/e2e-kit` — free ports, the per-checkout run lock |
 | Backend | Convex (`packages/api/convex`), local deployment only |
 | Auth | None. `auth.config.ts` ships `providers: []` on purpose |
-| Page objects | `apps/e2e/page-objects/<app>/` |
-| Specs | `apps/e2e/specs/<app>/` |
+| Page objects | `apps/e2e-<app>/page-objects/` |
+| Specs | `apps/e2e-app/specs/{app,app-convex}/`, `apps/e2e-www/specs/` |
 
-Each project pins its own `baseURL` and has its own `webServer` entry, rather
-than sharing a single top-level one. That is deliberate: a shared `baseURL` is
-what let defect (1) below happen — a spec asserting against the wrong app while
-looking perfectly reasonable. **Put a spec in the directory of the app it
-asserts against**; `testDir` is what routes it to the right server.
+Each suite owns its app's servers and nothing else, so a www-only change never
+boots Vite or a Convex backend. Until 2026-09-19 both apps were projects of one
+`apps/e2e` package; a single config pinned a `baseURL` per project so a spec
+could not assert against the wrong app — defect (1) below. Separate packages
+make that structural. **Put a spec in the suite of the app it asserts
+against.**
 
 `apps/www` came under test on 2026-08-07, alongside the `motion` 12 → 13
 upgrade. Before that it had no runtime coverage at all, which is why that
@@ -36,15 +39,17 @@ upgrade was held back from the routine dependency sweep — see §9.
 Run it:
 
 ```bash
-pnpm test:e2e                              # every project
-pnpm --filter e2e exec playwright test --project=www
-E2E_CONVEX=0 pnpm test:e2e                 # skip the backend (how CI runs)
-pnpm --filter e2e convex:local             # just the backend, for poking at data
+pnpm test:e2e                              # both suites
+pnpm test:e2e:app                          # apps/e2e-app: app + app-convex
+pnpm test:e2e:www                          # apps/e2e-www
+pnpm --filter e2e-app exec playwright test --project=app
+E2E_CONVEX=0 pnpm test:e2e:app             # skip the backend (how CI runs)
+pnpm --filter e2e-app convex:local         # just the backend, for poking at data
 ```
 
-**You do not need to stop `pnpm dev`.** The suite is deliberately independent of
-it — see §1b. That was not always true, and the three things that made it true
-are easy to undo by accident.
+**You do not need to stop `pnpm dev`, and several git worktrees can run the
+suites at once.** Both are deliberate — see §1b and §1c. Neither was always
+true, and what made them true is easy to undo by accident.
 
 ---
 
@@ -60,26 +65,37 @@ CI sets it: provisioning a backend on a cold runner for every push is not worth
 it, and the `app` and `www` projects assert only statically-rendered chrome and
 client-side behaviour, so they still run there.
 
-### The port is not 3210, and assuming it is can wipe another project
+### The port is chosen per run, and a wrong one can wipe another database
 
-Convex allocates a `(cloud, site)` port pair **per local deployment** and
-records it in that deployment's own `.convex/local/default/config.json`.
-Whoever boots first keeps 3210; the second Convex project on the machine gets
-3212/3213, the third 3214/3215.
+Convex records a `(cloud, site)` port pair in each local deployment's
+`.convex/local/default/config.json` when it is provisioned — the first free
+pair from 3210 up. Two traps follow:
 
-Hard-coding 3210 is a data-loss bug, not a shortcut. Playwright's
-`webServer.url` health check only asks *"is something answering here?"* — it
-cannot tell one Convex backend from another. So: the other project's backend
-answers on 3210 → `reuseExistingServer` sees a live server, so ours never
-starts → the app under test is handed that URL → global setup wipes the
-database to seed it. Every step succeeds, and the run goes green while pointed
-at, and destroying, the wrong database.
+- **The record is per directory, not per machine.** Every git worktree is its
+  own directory, so two worktrees provisioned while no backend was up both
+  record 3210. Two Convex projects can do the same.
+- **The CLI treats the record as a suggestion.** At boot, if the recorded port
+  is taken, it silently moves to the next free one — after Playwright has
+  already handed the recorded one to the app.
 
-`apps/e2e/local-backend.ts` therefore reads the port from `config.json` and is
-the single place that does. `CONVEX_URL` overrides it but has **no default** —
-a default in a `.env` is what let the right answer and the wrong one coexist in
-the project this pattern came from, and `apps/e2e/.env` is not even loaded when
-Playwright evaluates its config.
+A wrong port is a data-loss bug, not a flaky test. Playwright's `webServer.url`
+health check only asks *"is something answering here?"* — it cannot tell one
+Convex backend from another. So: another backend answers on the port → with
+`reuseExistingServer: true`, ours never starts → the app under test is handed
+that URL → global setup wipes the database to seed it. Every step succeeds.
+
+The harness used to read the port from `config.json` and reuse a running
+backend. Reproduced 2026-09-19 with two worktrees both recording 3210: the
+second run adopted the first's backend, and only guard 2 below stopped it
+seeding. Now `playwright.config.ts` asks the OS for a free pair **every run**,
+`scripts/convex-local.mjs` boots the backend on exactly that pair
+(`--local-cloud-port`, which fails loudly instead of drifting), and the backend
+is never reused — see §1c. Nothing reads the recorded port.
+
+`CONVEX_URL` overrides the URL but has **no default** — a default in a `.env` is
+what let the right answer and the wrong one coexist in the project this pattern
+came from, and a package `.env` is not even loaded when Playwright evaluates its
+config.
 
 ### Two guards, because a name is not enough
 
@@ -135,9 +151,9 @@ three without asking you to shut anything down.
 
 | Collision | How it is avoided |
 |---|---|
-| Vite's port (5173) | The suite asks the OS for free ports (`free-port.ts`) |
+| Vite's port (5173) | The suite asks the OS for free ports (`packages/e2e-kit`) |
 | Next's dev lock | Its own `distDir` (`.next-e2e`) — the lock is `<distDir>/lock` |
-| Convex deployment | Its own local, anonymous backend on its own port |
+| Convex deployment | Its own local, anonymous backend on a per-run port |
 | `convex/_generated/` churn | `convex dev --codegen disable` on the e2e backend |
 | `packages/api/.env.local` | Snapshot + watch + restore, scoped to local repointing |
 
@@ -168,6 +184,55 @@ Verified on 2026-08-07 by running the full suite with `pnpm dev` up: 15/15
 passed, Vite kept serving 200 on 5173, `packages/api/.env.local` was
 byte-identical and still selected the cloud deployment, `convex dev` logged no
 errors, and `convex/_generated/` had no uncommitted churn.
+
+---
+
+## 1c. Many worktrees, one machine
+
+Several git worktrees may each run either suite at the same time — agents
+working in parallel do exactly that. Every resource a run touches is either
+**per run** or **per checkout**, never per machine:
+
+| Resource | Scope | How |
+|---|---|---|
+| Vite, Next and Convex ports | per run | `stablePorts()` asks the OS, once per run |
+| Convex backend process | per run | started for the run, `reuseExistingServer: false`, stopped with SIGTERM |
+| Convex database | per checkout | `packages/api/.convex/local/default/` (gitignored) |
+| Next build + dev lock | per checkout | `apps/www/.next-e2e/` |
+| Reports, traces | per checkout | `apps/e2e-*/playwright-report/`, `test-results/` |
+| Chromium, Convex binary | per machine | read-only caches, safe to share |
+
+Four details make it hold:
+
+- **The recorded ports are repointed before boot.** `--local-cloud-port` alone
+  is not enough. Before starting, the CLI waits for "its own" backend to stop
+  on the *recorded* port, and recognises it by name — and every anonymous
+  deployment is named `anonymous-agent`. So another worktree's backend on that
+  port reads as ours: the CLI waits five seconds for it to exit, then dies with
+  *"A local backend is still running on port 3210"* (`ensureBackendStopped` in
+  `convex/dist/cli/lib/localDeployment/run.js`, 1.46.0). `convex-local.mjs`
+  rewrites `ports` in `config.json` to the run's pair first, which makes that
+  wait a no-op.
+- **The backend is per run.** It used to be reused across runs, so the next
+  run could attach to it; with ports chosen per run there is nothing to reuse.
+  The database persists, so the cost is only process start and a function
+  push, a few seconds. Playwright stops it with SIGTERM (`gracefulShutdown`)
+  rather than its default SIGKILL, so the CLI stops the backend cleanly. The
+  backend is a non-detached child of the CLI, in Playwright's process group, so
+  even a SIGKILL cannot orphan it.
+- **Two runs of one suite in one checkout are refused.** They would share the
+  database and `.next-e2e`, each wiping the other's seed mid-run — failures
+  that look like flaky tests. `acquireRunLock()` (`packages/e2e-kit`) holds
+  `.e2e-run.lock` in the suite's directory for the run and names the other
+  run's pid. A lock left by a killed run is taken over once its pid is dead.
+  The two *different* suites share nothing and may run together.
+- **A new worktree provisions its own deployment** on first run. It needs
+  `pnpm install`, nothing else — no Convex account, no Doppler.
+
+Verified 2026-09-19 with both worktrees' `config.json` recording 3210: all four
+runs (both suites in both worktrees) at once, 30/30 passed in 19s wall-clock,
+no server processes left afterwards. An overlapping second `e2e-app` run in one
+checkout was refused while the first passed, and a stale lock was taken over.
 
 ---
 
@@ -257,6 +322,11 @@ than the one it thinks it seeded, and a fully green run proves nothing. Prefer
 
 Give the entry a generous `timeout` and point the health check at the raw port.
 Both are applied: `reuseExistingServer: false` and `timeout: 120_000`.
+
+This now covers the Convex backend too. It was the one server left on
+`reuseExistingServer: true`, on the theory that its identity check made reuse
+safe — true for correctness, but it let one worktree's run adopt another's
+backend and fail. See §1c.
 
 ---
 
@@ -366,7 +436,8 @@ explanation in it so the gap stays visible.
 ## 8. Parallel safety
 
 `fullyParallel: true` means spec **files** run concurrently, against **one
-Convex deployment**. Today `packages/api/convex/schema.ts` has a single
+Convex deployment** — this checkout's. Runs in *other* worktrees have their own
+database and never see these rows (§1c). Today `packages/api/convex/schema.ts` has a single
 `messages` table and `messages.list` returns the newest 50 rows globally — there
 is no tenant boundary to hide behind.
 
@@ -502,6 +573,9 @@ assumed. Listed with the trigger that would make each relevant again.
 | Every spec fails `ERR_CONNECTION_REFUSED`, each on a *different* port | Ports allocated per worker instead of per run (§1b) |
 | "Another next dev server is already running" | The suite lost its own `distDir`; the lock is `<distDir>/lock` (§1b) |
 | Test passes alone, fails in parallel | Shared `messages` rows (§8) |
+| "Another e2e-app e2e run (pid …) is already running in this checkout" | Same suite started twice in one worktree; wait, or use another worktree (§1c) |
+| "A local backend is still running on port 3210" | Recorded ports not repointed before boot — another worktree's `anonymous-agent` backend (§1c) |
+| Admin-key `ping` refused on a backend named `anonymous-agent` | Another worktree's or project's backend on our URL — a reused or drifted port (§1a, §1c) |
 | Everything green but proving nothing | Reused dev server on a different `VITE_CONVEX_URL` (§3) |
 | `getByLabel` finds nothing | Labels not associated with inputs (§6) |
 | Row counts are exactly double | Nested identical roles (§6) |

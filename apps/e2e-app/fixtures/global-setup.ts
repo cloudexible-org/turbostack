@@ -55,7 +55,7 @@ async function globalSetup(): Promise<void> {
   const client = adminClient();
 
   // Referenced by string rather than through the generated `internal.*` tree:
-  // apps/e2e has no dependency on the backend's generated API, and adding one
+  // apps/e2e-app has no dependency on the backend's generated API, and adding one
   // would drag Convex codegen into the e2e typecheck.
   let guard = 0;
   for (;;) {

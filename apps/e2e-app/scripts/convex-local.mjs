@@ -1,11 +1,14 @@
 /**
- * Runs this project's **local** Convex backend and keeps it alive, watching for
- * code changes — the backend the e2e suite talks to.
+ * Runs this checkout's **local** Convex backend on the ports it is given and
+ * keeps it alive, watching for code changes — the backend the e2e suite talks
+ * to.
  *
- *   pnpm --filter e2e convex:local
+ *   pnpm --filter e2e-app convex:local
  *
- * Playwright starts this as a `webServer`, so you rarely run it yourself; do it
- * when you want to poke at the seeded data in a browser without running tests.
+ * Playwright starts this as a `webServer` for each run, on ports it allocated
+ * (`E2E_CONVEX_CLOUD_PORT` / `E2E_CONVEX_SITE_PORT`), and stops it afterwards.
+ * Run it yourself when you want to poke at the seeded data without running
+ * tests; with the variables unset it picks free ports and prints the URL.
  *
  * ─── Why a wrapper and not just `npx convex dev` ────────────────────────────
  *
@@ -39,12 +42,54 @@
 
 import { spawn } from "node:child_process";
 import * as fs from "node:fs";
+import * as net from "node:net";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const BACKEND_DIR = path.join(__dirname, "..", "..", "..", "packages", "api");
 const DEV_ENV_FILE = path.join(BACKEND_DIR, ".env.local");
+const LOCAL_CONFIG = path.join(
+  BACKEND_DIR,
+  ".convex",
+  "local",
+  "default",
+  "config.json",
+);
+
+/** A port the OS says is free — only for runs started by hand. */
+function freePort() {
+  return new Promise((resolve, reject) => {
+    const server = net.createServer();
+    server.on("error", reject);
+    server.listen(0, "127.0.0.1", () => {
+      const { port } = server.address();
+      server.close(() => resolve(port));
+    });
+  });
+}
+
+const cloudPort =
+  Number(process.env.E2E_CONVEX_CLOUD_PORT) || (await freePort());
+const sitePort = Number(process.env.E2E_CONVEX_SITE_PORT) || (await freePort());
+
+/**
+ * Point the deployment's recorded ports at this run's before the CLI reads
+ * them. `--local-cloud-port` alone is not enough: on boot the CLI first waits
+ * for "its own" backend to stop on the *recorded* port, recognising it by
+ * name — and every anonymous deployment is named `anonymous-agent`. If another
+ * worktree's backend holds that port, the CLI takes it for its own, waits five
+ * seconds for it to exit, and dies with "A local backend is still running on
+ * port 3210" (`ensureBackendStopped` in convex/dist/cli/lib/localDeployment/
+ * run.js, 1.46.0). Pointing the record at our free pair makes that wait a
+ * no-op. `playwright.config.ts` provisions the deployment before this runs, so
+ * the file exists whenever the suite starts us.
+ */
+if (fs.existsSync(LOCAL_CONFIG)) {
+  const config = JSON.parse(fs.readFileSync(LOCAL_CONFIG, "utf-8"));
+  config.ports = { cloud: cloudPort, site: sitePort };
+  fs.writeFileSync(LOCAL_CONFIG, JSON.stringify(config));
+}
 
 /**
  * Configuring a local deployment rewrites `CONVEX_DEPLOYMENT` in
@@ -122,6 +167,12 @@ const child = spawn(
     "disable",
     "--tail-logs",
     "disable",
+    // Requested, not suggested: the CLI fails if either is taken instead of
+    // silently moving to another port the suite does not know about.
+    "--local-cloud-port",
+    String(cloudPort),
+    "--local-site-port",
+    String(sitePort),
   ],
   {
     cwd: BACKEND_DIR,
@@ -134,6 +185,10 @@ const child = spawn(
     },
   },
 );
+
+if (!process.env.E2E_CONVEX_CLOUD_PORT) {
+  console.log(`Local Convex backend: http://127.0.0.1:${cloudPort}`);
+}
 
 const stop = () => child.kill("SIGTERM");
 process.on("SIGINT", stop);

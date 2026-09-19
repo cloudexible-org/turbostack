@@ -54,7 +54,7 @@ convex/_generated/*
 !convex/_generated/ai/
 convex/_generated/ai/ai-files.state.json
 # Local deployment state: ports, admin key and deployment name, all specific to
-# one machine. apps/e2e reads the port and identity from here.
+# one machine. apps/e2e-app reads the identity from here.
 .convex/
 
 *storybook.log
@@ -62,3 +62,6 @@ storybook-static
 
 test-results/
 playwright-report/
+
+# Held by a running Playwright suite; see packages/e2e-kit/src/run-lock.ts.
+.e2e-run.lock

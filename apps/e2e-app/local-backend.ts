@@ -1,41 +1,40 @@
 /**
- * Where *this project's* local Convex backend listens, and proof that whatever
- * is answering there is actually ours.
+ * Where *this run's* local Convex backend listens, and proof that whatever is
+ * answering there is actually ours.
  *
- * ─── The port is not 3210 ───────────────────────────────────────────────────
+ * ─── The port is chosen per run, not read from `config.json` ────────────────
  *
- * It is tempting to treat 3210 as fixed — it is what a single-project machine
- * always gets, and what every Convex doc shows. It is not fixed. Convex
- * allocates a free `(cloud, site)` pair per local deployment and records it in
- * that deployment's own `config.json`:
+ * Convex records a `(cloud, site)` port pair in each local deployment's
+ * `config.json` when it is provisioned — the first free pair from 3210 up:
  *
- *   {"ports":{"cloud":3213,"site":3214}, "deploymentName":"local-acme-app", ...}
+ *   {"ports":{"cloud":3210,"site":3211}, "deploymentName":"anonymous-agent", ...}
  *
- * Whoever boots first keeps 3210; the second Convex project on the machine gets
- * 3212/3213, the third 3214/3215. Storing the pair per deployment would be
- * pointless if it were universal — that file *is* the source of truth.
+ * That record is per *directory*, and every git worktree is its own directory.
+ * Two worktrees provisioned while no backend was up both record 3210. The
+ * harness used to read that port and reuse whatever answered on it, so the
+ * second worktree's run adopted the first one's backend — reproduced
+ * 2026-09-19, and stopped only by the identity guard below. It gets worse at
+ * boot: the CLI treats the recorded port as a *suggestion* and silently moves
+ * to the next free one if it is taken, after Playwright has already handed the
+ * old one to the app.
  *
- * ─── Why hard-coding it is a data-loss bug, not a shortcut ──────────────────
+ * So `playwright.config.ts` asks the OS for a free pair every run, and
+ * `scripts/convex-local.mjs` boots the backend on exactly that pair
+ * (`--local-cloud-port`, which fails loudly rather than drifting). Nothing
+ * reads the recorded port any more.
  *
- * Playwright's `webServer.url` health check only asks "is something answering
- * here?". Point it at a hard-coded 3210 on a machine running two Convex
- * projects and the sequence is:
+ * ─── Why a wrong backend is a data-loss bug, not a flaky test ───────────────
  *
- *   1. The *other* project's backend answers on 3210.
- *   2. `reuseExistingServer: true` sees a live server, so ours never starts.
- *   3. The app under test is handed that URL as `VITE_CONVEX_URL`.
- *   4. Global setup wipes the database to seed it — the other project's.
- *
- * Every step succeeds, so the run goes green while pointed at, and destroying,
- * the wrong database. Reading the port from `config.json` removes the collision
- * outright: each project addresses only its own backend, which is also what
- * makes `reuseExistingServer: true` safe to keep.
+ * Global setup wipes the database to seed it. Pointed at another project's or
+ * another worktree's backend, every step succeeds and the run goes green while
+ * destroying someone else's data. Per-run ports remove the collision; the
+ * identity guard at the bottom of this file stays as the backstop.
  *
  * `CONVEX_URL` remains an escape hatch for a genuinely remapped backend, but it
  * deliberately has **no default**. A default in `.env` is what let the right
  * answer and the wrong one coexist in the project this pattern came from — and
- * `apps/e2e/.env` is not even loaded when Playwright evaluates the config or in
- * test workers, so it could never have applied consistently. Export it in your
+ * `.env` is not even loaded when Playwright evaluates the config or in test
+ * workers, so it could never have applied consistently. Export it in your
  * shell if you need it.
  */
 
@@ -71,17 +70,25 @@ export function readLocalConfig(): LocalDeploymentConfig | null {
 }
 
 /**
- * Creates the local deployment if this machine does not have one yet, so the
- * port is *read* rather than guessed.
- *
- * This exists because the fallback below is genuinely dangerous on a cold
- * checkout: with no `config.json`, `localBackendUrl()` can only guess 3210, and
- * Playwright evaluates the config — and therefore fixes the health-check URL
- * and the app's `VITE_CONVEX_URL` — *before* the webServer has had a chance to
- * create the deployment and learn its real port. On a machine where another
- * Convex project already holds 3210 that guess is wrong, and the app under test
- * spends the run talking to the neighbour's backend while the guard correctly
- * checks ours. Provisioning first collapses that window.
+ * This run's backend ports, allocated by `playwright.config.ts` through
+ * `stablePorts` before anything here runs, and inherited by workers.
+ */
+export function runPorts(): { cloud: number; site: number } {
+  const cloud = Number(process.env.E2E_CONVEX_CLOUD_PORT);
+  const site = Number(process.env.E2E_CONVEX_SITE_PORT);
+  if (!cloud || !site) {
+    throw new Error(
+      "E2E_CONVEX_CLOUD_PORT / E2E_CONVEX_SITE_PORT are unset. " +
+        "playwright.config.ts allocates them before anything reads them.",
+    );
+  }
+  return { cloud, site };
+}
+
+/**
+ * Creates this checkout's local deployment if it does not have one yet — the
+ * database and the admin key global setup needs. A new worktree starts without
+ * one, since `.convex/` is gitignored.
  *
  * The CLI rewrites `packages/api/.env.local` while doing this, so the call is
  * wrapped in `withDevEnvProtected`.
@@ -91,9 +98,12 @@ export function ensureLocalDeployment(): void {
 
   console.log("No local Convex deployment yet — provisioning one…");
 
-  // `convex dev --once` provisions the deployment, records its port and admin
-  // key in config.json, pushes the current functions, and exits. The backend
-  // does not survive it — which is fine, because all we need here is the file.
+  // `convex dev --once` provisions the deployment, records its admin key in
+  // config.json, pushes the current functions, and exits. The backend does not
+  // survive it — which is fine, because all we need here is the file. It boots
+  // on this run's ports so provisioning cannot collide with another worktree's
+  // backend either.
+  const ports = runPorts();
   //
   // Anonymous, and with `CONVEX_DEPLOYMENT` cleared, on purpose:
   //   - anonymous needs no Convex account, so anyone who clones this template
@@ -125,6 +135,10 @@ export function ensureLocalDeployment(): void {
         // convex/_generated/, and the suite never imports it.
         "--codegen",
         "disable",
+        "--local-cloud-port",
+        String(ports.cloud),
+        "--local-site-port",
+        String(ports.site),
       ],
       {
         cwd: BACKEND_DIR,
@@ -181,18 +195,10 @@ function withDevEnvProtected(fn: () => void): void {
   }
 }
 
-/**
- * The backend's base URL.
- *
- * Falls back to 3210 only when no local deployment exists yet. `playwright.
- * config.ts` calls `ensureLocalDeployment()` first precisely so that fallback
- * is unreachable in practice, and `assertLocalBackendIdentity` catches the
- * remaining case before anything is written.
- */
+/** The backend's base URL: this run's port, unless `CONVEX_URL` overrides it. */
 export function localBackendUrl(): string {
   if (process.env.CONVEX_URL) return process.env.CONVEX_URL;
-  const port = readLocalConfig()?.ports?.cloud ?? 3210;
-  return `http://127.0.0.1:${port}`;
+  return `http://127.0.0.1:${runPorts().cloud}`;
 }
 
 /**
@@ -207,7 +213,7 @@ export function localBackendCredentials(): { url: string; adminKey: string } {
   if (!config) {
     throw new Error(
       `No local Convex deployment at ${LOCAL_CONFIG}.\n` +
-        "Start it with `pnpm --filter e2e convex:local`, or just run the suite — " +
+        "Start it with `pnpm --filter e2e-app convex:local`, or just run the suite — " +
         "Playwright starts it as a webServer.",
     );
   }
@@ -239,21 +245,21 @@ export async function assertLocalBackendIdentity(): Promise<void> {
         (config
           ? ` (expected the local deployment "${config.deploymentName}")`
           : "") +
-        ". Start it with `pnpm --filter e2e convex:local`.",
+        ". Start it with `pnpm --filter e2e-app convex:local`.",
       { cause },
     );
   }
 
   // No local deployment here, yet something is answering on the address we
-  // would use. That is another project's backend, and the only reason we got
-  // this far is the 3210 fallback. Refuse rather than hand it to the app.
+  // would use — only possible through a `CONVEX_URL` override. Refuse rather
+  // than hand someone else's backend to the app.
   if (!config) {
     throw new Error(
       `${url} is serving "${reported}", but this project has no local Convex ` +
         `deployment yet (${LOCAL_CONFIG} does not exist).\n\n` +
         "That address belongs to another Convex project on this machine. The " +
         "suite stopped rather than seed it — seeding WIPES the database.\n" +
-        "Create this project's deployment first: `pnpm --filter e2e convex:local`.",
+        "Create this project's deployment first: `pnpm --filter e2e-app convex:local`.",
     );
   }
 
@@ -262,10 +268,10 @@ export async function assertLocalBackendIdentity(): Promise<void> {
       `${url} is serving a different Convex deployment.\n` +
         `  expected: ${config.deploymentName}\n` +
         `  found:    ${reported}\n\n` +
-        "Another Convex project on this machine is using that port. The suite " +
+        "Another Convex backend on this machine is using that port. The suite " +
         "stopped rather than seed it — seeding WIPES the database.\n" +
-        "Unset CONVEX_URL if it is pinning the wrong port; otherwise stop the " +
-        "other project's backend and re-run.",
+        "Unset CONVEX_URL if it is pinning the wrong port; otherwise re-run — " +
+        "each run picks fresh ports.",
     );
   }
 

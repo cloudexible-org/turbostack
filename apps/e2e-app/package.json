@@ -1,5 +1,5 @@
 {
-  "name": "e2e",
+  "name": "e2e-app",
   "version": "4.5.0",
   "private": true,
   "scripts": {
@@ -12,6 +12,7 @@
   "devDependencies": {
     "@playwright/test": "^1.63.0",
     "@repo/config": "workspace:*",
+    "@repo/e2e-kit": "workspace:*",
     "@types/node": "catalog:",
     "convex": "catalog:",
     "typescript": "catalog:"

@@ -22,7 +22,7 @@ const nextConfig: NextConfig = {
   // on the same distDir refuse to run — "Another next dev server is already
   // running", and a different port does not help because the lock is on the
   // directory, not the port. The e2e suite therefore builds into its own
-  // distDir (`NEXT_DIST_DIR=.next-e2e`, set in apps/e2e/playwright.config.ts),
+  // distDir (`NEXT_DIST_DIR=.next-e2e`, set in apps/e2e-www/playwright.config.ts),
   // which gives it its own lock and lets the suite run while `pnpm dev` is up.
   // Unset everywhere else, so dev, CI, Docker and Vercel all use `.next`.
   distDir: process.env.NEXT_DIST_DIR || ".next",
@@ -32,7 +32,7 @@ const nextConfig: NextConfig = {
   // HMR client) from any unlisted host, so the page ships HTML but never hydrates.
   // Dev-only — Next ignores this in production builds.
   // `127.0.0.1` is where the Playwright suite serves this app (see
-  // apps/e2e/playwright.config.ts). Without it Next blocks every /_next dev
+  // apps/e2e-www/playwright.config.ts). Without it Next blocks every /_next dev
   // chunk from that host, so the page ships HTML and never hydrates — which
   // reads as "every animation is broken" rather than as a blocked request.
   allowedDevOrigins: ["*.turbostack.localhost", "127.0.0.1", "localhost"],

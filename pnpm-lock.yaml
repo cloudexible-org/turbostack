@@ -130,7 +130,7 @@ importers:
         specifier: ^8.3.0
         version: 8.3.0(@types/node@26.6.2)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.46.0)(yaml@2.8.2)
 
-  apps/e2e:
+  apps/e2e-app:
     devDependencies:
       '@playwright/test':
         specifier: ^1.63.0
@@ -138,12 +138,33 @@ importers:
       '@repo/config':
         specifier: workspace:*
         version: link:../../packages/config
+      '@repo/e2e-kit':
+        specifier: workspace:*
+        version: link:../../packages/e2e-kit
       '@types/node':
         specifier: 'catalog:'
         version: 26.6.2
       convex:
         specifier: 'catalog:'
         version: 1.46.0(@clerk/clerk-react@5.61.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(@clerk/react@6.16.1(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react@19.3.0)
+      typescript:
+        specifier: 'catalog:'
+        version: 7.0.2
+
+  apps/e2e-www:
+    devDependencies:
+      '@playwright/test':
+        specifier: ^1.63.0
+        version: 1.63.0
+      '@repo/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      '@repo/e2e-kit':
+        specifier: workspace:*
+        version: link:../../packages/e2e-kit
+      '@types/node':
+        specifier: 'catalog:'
+        version: 26.6.2
       typescript:
         specifier: 'catalog:'
         version: 7.0.2
@@ -271,6 +292,18 @@ importers:
         version: 7.0.2
 
   packages/config: {}
+
+  packages/e2e-kit:
+    devDependencies:
+      '@repo/config':
+        specifier: workspace:*
+        version: link:../config
+      '@types/node':
+        specifier: 'catalog:'
+        version: 26.6.2
+      typescript:
+        specifier: 'catalog:'
+        version: 7.0.2
 
   packages/ui:
     dependencies:

@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { SEED_MESSAGES } from "../../../../packages/api/convex/seed/e2e/fixture";
-import { HomePage } from "../../page-objects/app/home.page";
+import { HomePage } from "../../page-objects/home.page";
 
 /**
  * `apps/app` against a real Convex backend.

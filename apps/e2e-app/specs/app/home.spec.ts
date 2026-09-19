@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { HomePage } from "../../page-objects/app/home.page";
+import { HomePage } from "../../page-objects/home.page";
 
 /**
  * Smoke coverage for the `apps/app` shell.
