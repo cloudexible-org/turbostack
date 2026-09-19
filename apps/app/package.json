@@ -18,7 +18,7 @@
     "convex": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "zod": "^4.4.3"
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@repo/config": "workspace:*",
@@ -30,6 +30,6 @@
     "postcss": "catalog:",
     "tailwindcss": "catalog:",
     "typescript": "catalog:",
-    "vite": "^8.2.1"
+    "vite": "^8.3.0"
   }
 }
