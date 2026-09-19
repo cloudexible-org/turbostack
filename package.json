@@ -14,7 +14,7 @@
     "format": "biome format . --write",
     "check": "biome check .",
     "storybook": "pnpm --filter @repo/ui storybook",
-    "setup:envs": "node scripts/setup.mjs"
+    "setup:envs": "doppler setup --no-interactive"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",

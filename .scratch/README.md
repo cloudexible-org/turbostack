@@ -15,7 +15,7 @@ file and `.gitignore`, so nothing you drop in ends up in a commit or a PR.
 
 - Anything another developer or CI needs — that goes in the repo proper
   (`scripts/`, `docs/`, `docs/assets/`, test fixtures next to their tests)
-- Secrets and credentials — use `.env.local`, which is already ignored
+- Secrets and credentials — they belong in Doppler (see `doppler.yaml`)
 - Anything you want to survive a `git clean -xdf`
 
 ## Notes for agents

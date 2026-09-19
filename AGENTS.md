@@ -12,7 +12,7 @@ This document defines the core standards and automated workflows that any AI age
 * **Use `.scratch/`:** For any temporary file — throwaway scripts, repro cases, screenshots, logs, dumps, draft notes, intermediate output — write it under `.scratch/` instead of `/tmp` or the repo root. Its contents are gitignored, so nothing leaks into a commit.
 * **Namespace your work:** Create `.scratch/<short-task-name>/` rather than dropping loose files at the folder root.
 * **Never depend on it:** Committed code, docs, tests, and config must not reference a `.scratch/` path — the folder is empty on every other machine and in CI. If an artifact turns out to be worth keeping, move it into the tracked repo (`scripts/`, `docs/assets/`, fixtures beside their tests) and call that out.
-* **No secrets:** Credentials belong in `.env.local`, not here.
+* **No secrets:** Credentials belong in Doppler (see `doppler.yaml`), not here.
 * See `.scratch/README.md` for the full rundown.
 
 ## 3. Documentation & Changelog

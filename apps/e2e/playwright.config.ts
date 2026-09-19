@@ -142,7 +142,14 @@ export default defineConfig({
       cwd: "../www",
       url: WWW_URL,
       reuseExistingServer: false,
-      env: { NEXT_DIST_DIR: WWW_DIST_DIR },
+      // `apps/www`'s env.ts requires a well-formed NEXT_PUBLIC_CONVEX_URL.
+      // Local dev reads it from Doppler, which this server does not run under,
+      // so fall back to the same URL the app server gets; CI sets its own.
+      env: {
+        NEXT_DIST_DIR: WWW_DIST_DIR,
+        NEXT_PUBLIC_CONVEX_URL:
+          process.env.NEXT_PUBLIC_CONVEX_URL ?? VITE_CONVEX_URL,
+      },
       // A cold `.next-e2e` compiles from scratch on the first request.
       timeout: 180_000,
       stdout: "ignore",

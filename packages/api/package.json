@@ -6,7 +6,8 @@
     ".": "./index.ts"
   },
   "scripts": {
-    "dev": "convex dev",
+    "dev": "doppler run -- convex dev",
+    "convex": "doppler run -- convex",
     "typecheck": "tsc --noEmit",
     "lint": "biome check .",
     "test": "echo \"No tests for API yet\""

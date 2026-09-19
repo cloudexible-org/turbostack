@@ -67,19 +67,30 @@ A premium, production-ready monorepo template for building high-performance, typ
    ```
 
 3. **Set up environment variables:**
+   Local development secrets live in [Doppler](https://www.doppler.com), not in
+   `.env.local` files. `doppler.yaml` maps each package to a config in the
+   `turbostack` project — `packages/api` → `dev_api`, `apps/app` → `dev_app`,
+   `apps/www` → `dev_www` — and each package's `dev` script runs under
+   `doppler run`. Once per checkout (and per git worktree, since Doppler
+   remembers the selection by path):
    ```bash
-   pnpm setup:envs
+   brew install dopplerhq/cli/doppler
+   doppler login
+   pnpm setup:envs    # doppler setup --no-interactive
    ```
-   *This copies all `.env.example` files to `.env.local` across the monorepo.*
+   *Each package's `.env.example` lists the variables its Doppler config holds.
+   Production is not in Doppler — Vercel supplies its own values.*
 
-4. **(Optional) Sync Clerk Auth Keys:**
-   Clerk is optional — skip this to run without auth. To enable it, go to your **Clerk Dashboard** > **API Keys**, copy the keys, and paste them into the local `.env.local` files in `apps/www`, `apps/app`, and `packages/api`.
+4. **(Optional) Clerk Auth Keys:**
+   Clerk is optional — skip this to run without auth. To enable it, go to your **Clerk Dashboard** > **API Keys** and add the keys to the `dev_www` and `dev_app` Doppler configs.
 
-5. **Initialize Convex:**
+5. **Convex:**
+   The Convex CLI reads `CONVEX_DEPLOY_KEY` (a dev deploy key) from the `dev_api`
+   config, so `pnpm dev` needs no `npx convex login`. For any other Convex CLI
+   command, go through the same wrapper:
    ```bash
-   cd packages/api && npx convex dev
+   pnpm --filter @repo/api convex env list
    ```
-   *This will link your project to Convex and generate the necessary `.env.local` files.*
 
 6. **Run the development environment:**
    ```bash

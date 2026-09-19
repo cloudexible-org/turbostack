@@ -1,0 +1,20 @@
+# Which Doppler config each workspace package reads its secrets from. One
+# `turbostack` project holds a branch config per package — `dev_api`,
+# `dev_app`, `dev_www` — rather than a project each, to stay within the free
+# plan's project limit. `pnpm setup:envs` (`doppler setup --no-interactive`)
+# applies this once per checkout, including every new git worktree, since
+# Doppler remembers the selection by absolute path.
+#
+# The package `dev` scripts wrap themselves in `doppler run`, so there are no
+# `.env.local` files to keep in sync for local development. Production is NOT
+# here: Vercel supplies its own values. The e2e suite never reads Doppler.
+setup:
+  - project: turbostack
+    config: dev_api
+    path: packages/api/
+  - project: turbostack
+    config: dev_app
+    path: apps/app/
+  - project: turbostack
+    config: dev_www
+    path: apps/www/
