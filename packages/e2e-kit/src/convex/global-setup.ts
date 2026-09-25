@@ -9,14 +9,17 @@
  *
  * When `E2E_CONVEX=0` there is no backend and nothing to seed; the remaining
  * specs assert only statically-rendered chrome. That is how CI runs.
+ *
+ * Every suite built with `defineAppSuite` runs this — the e2e specs and any
+ * marketing capture alike — so they all start from the same seeded world.
  */
 
 import { ConvexHttpClient } from "convex/browser";
-import { convexEnabled } from "../convex-enabled";
+import { convexEnabled } from "./convex-enabled";
 import {
   assertLocalBackendIdentity,
   localBackendCredentials,
-} from "../local-backend";
+} from "./local-backend";
 
 /** The manifest `seed/e2e/mutations:apply` hands back. */
 type SeedManifest = { messages: Record<string, string> };
@@ -55,7 +58,7 @@ async function globalSetup(): Promise<void> {
   const client = adminClient();
 
   // Referenced by string rather than through the generated `internal.*` tree:
-  // apps/e2e-app has no dependency on the backend's generated API, and adding one
+  // the harness has no dependency on the backend's generated API, and adding one
   // would drag Convex codegen into the e2e typecheck.
   let guard = 0;
   for (;;) {

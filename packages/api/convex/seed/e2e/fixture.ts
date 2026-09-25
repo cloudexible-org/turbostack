@@ -1,8 +1,8 @@
 /**
  * The world the e2e suite starts from.
  *
- * Deliberately plain data with no Convex imports, so `apps/e2e-app` can import this
- * file directly and assert against the same constants the seed writes. A test
+ * Deliberately plain data with no Convex imports, so `@repo/e2e-kit/seed` can
+ * re-export it and suites assert against the same constants the seed writes. A test
  * that hard-codes `"Seeded: first message"` and a fixture that writes something
  * else fail as a mystery; sharing the definition makes that impossible.
  *

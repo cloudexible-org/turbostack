@@ -30,9 +30,10 @@ pnpm-debug.log*
 # vercel
 .vercel
 
-# The e2e suite's own Next distDir. Separate from .next so its `next dev`
-# has its own lock and can run while `pnpm dev` is up — see apps/www/next.config.ts.
-.next-e2e
+# Each Playwright suite's own Next distDir (`.next-<suite name>`). Separate from
+# .next so its `next dev` has its own lock and can run while `pnpm dev` — or
+# another suite — is up. See apps/www/next.config.ts.
+.next-*/
 
 # typescript
 *.tsbuildinfo
@@ -54,7 +55,7 @@ convex/_generated/*
 !convex/_generated/ai/
 convex/_generated/ai/ai-files.state.json
 # Local deployment state: ports, admin key and deployment name, all specific to
-# one machine. apps/e2e-app reads the identity from here.
+# one machine. packages/e2e-kit reads the identity from here.
 .convex/
 
 *storybook.log
@@ -63,5 +64,6 @@ storybook-static
 test-results/
 playwright-report/
 
-# Held by a running Playwright suite; see packages/e2e-kit/src/run-lock.ts.
+# Held by a running Playwright suite, in its own directory and in packages/api
+# for the Convex database; see packages/e2e-kit/src/run-lock.ts.
 .e2e-run.lock

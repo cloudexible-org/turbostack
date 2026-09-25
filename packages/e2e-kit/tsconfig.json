@@ -2,7 +2,9 @@
   "extends": "@repo/config/base.json",
   "compilerOptions": {
     "target": "ES2023",
-    "lib": ["ES2023"],
+    // DOM: page objects pass callbacks to `page.evaluate`, which are serialised
+    // and run in the browser, so they reference `window` and `document`.
+    "lib": ["ES2023", "DOM"],
     "module": "ESNext",
     "types": ["node"],
     "noEmit": true,

@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
-import { SEED_MESSAGES } from "../../../../packages/api/convex/seed/e2e/fixture";
-import { HomePage } from "../../page-objects/home.page";
+import { HomePage } from "@repo/e2e-kit/page-objects";
+import { SEED_MESSAGES } from "@repo/e2e-kit/seed";
 
 /**
  * `apps/app` against a real Convex backend.
@@ -10,9 +10,10 @@ import { HomePage } from "../../page-objects/home.page";
  * URL; this one asserts that data actually round-trips — a query that reads
  * seeded rows, and a mutation whose write survives a reload.
  *
- * The backend is the **local** deployment, reseeded by `fixtures/global-setup.ts`
- * before the run. It is never a cloud deployment: seeding wipes the database,
- * and the local backend is the only one that is disposable.
+ * The backend is the **local** deployment, reseeded by the harness's global
+ * setup (`packages/e2e-kit/src/convex/global-setup.ts`) before the run. It is
+ * never a cloud deployment: seeding wipes the database, and the local backend
+ * is the only one that is disposable.
  *
  * ─── Why these are safe to run in parallel ──────────────────────────────────
  *

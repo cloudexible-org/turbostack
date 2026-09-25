@@ -18,8 +18,8 @@
  * to the next free one if it is taken, after Playwright has already handed the
  * old one to the app.
  *
- * So `playwright.config.ts` asks the OS for a free pair every run, and
- * `scripts/convex-local.mjs` boots the backend on exactly that pair
+ * So `defineAppSuite` (`../suites/app.ts`) asks the OS for a free pair every
+ * run, and `scripts/convex-local.mjs` boots the backend on exactly that pair
  * (`--local-cloud-port`, which fails loudly rather than drifting). Nothing
  * reads the recorded port any more.
  *
@@ -41,9 +41,7 @@
 import { execFileSync } from "node:child_process";
 import * as fs from "node:fs";
 import * as path from "node:path";
-
-/** The Convex project root — `convex/` and `.convex/` live here. */
-const BACKEND_DIR = path.join(__dirname, "..", "..", "packages", "api");
+import { BACKEND_DIR } from "../paths";
 
 /** Written by the Convex CLI when it first provisions the local deployment. */
 export const LOCAL_CONFIG = path.join(
@@ -70,7 +68,7 @@ export function readLocalConfig(): LocalDeploymentConfig | null {
 }
 
 /**
- * This run's backend ports, allocated by `playwright.config.ts` through
+ * This run's backend ports, allocated by `defineAppSuite` through
  * `stablePorts` before anything here runs, and inherited by workers.
  */
 export function runPorts(): { cloud: number; site: number } {
@@ -79,7 +77,7 @@ export function runPorts(): { cloud: number; site: number } {
   if (!cloud || !site) {
     throw new Error(
       "E2E_CONVEX_CLOUD_PORT / E2E_CONVEX_SITE_PORT are unset. " +
-        "playwright.config.ts allocates them before anything reads them.",
+        "defineAppSuite() allocates them before anything reads them.",
     );
   }
   return { cloud, site };
@@ -213,7 +211,7 @@ export function localBackendCredentials(): { url: string; adminKey: string } {
   if (!config) {
     throw new Error(
       `No local Convex deployment at ${LOCAL_CONFIG}.\n` +
-        "Start it with `pnpm --filter e2e-app convex:local`, or just run the suite — " +
+        "Start it with `pnpm --filter @repo/e2e-kit convex:local`, or just run the suite — " +
         "Playwright starts it as a webServer.",
     );
   }
@@ -245,7 +243,7 @@ export async function assertLocalBackendIdentity(): Promise<void> {
         (config
           ? ` (expected the local deployment "${config.deploymentName}")`
           : "") +
-        ". Start it with `pnpm --filter e2e-app convex:local`.",
+        ". Start it with `pnpm --filter @repo/e2e-kit convex:local`.",
       { cause },
     );
   }
@@ -259,7 +257,7 @@ export async function assertLocalBackendIdentity(): Promise<void> {
         `deployment yet (${LOCAL_CONFIG} does not exist).\n\n` +
         "That address belongs to another Convex project on this machine. The " +
         "suite stopped rather than seed it — seeding WIPES the database.\n" +
-        "Create this project's deployment first: `pnpm --filter e2e-app convex:local`.",
+        "Create this project's deployment first: `pnpm --filter @repo/e2e-kit convex:local`.",
     );
   }
 

@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { LandingPage } from "../page-objects/landing.page";
+import { LandingPage } from "@repo/e2e-kit/page-objects";
 
 /**
  * Coverage for the `apps/www` marketing site.

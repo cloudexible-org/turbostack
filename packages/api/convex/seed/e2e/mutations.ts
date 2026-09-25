@@ -1,7 +1,8 @@
 /**
  * Rebuilds the e2e world from `./fixture.ts`.
  *
- * Two **internal** mutations, driven by `apps/e2e-app/fixtures/global-setup.ts`:
+ * Two **internal** mutations, driven by
+ * `packages/e2e-kit/src/convex/global-setup.ts`:
  *
  *   reset — deletes every row the seed owns, one page at a time. Reports
  *           whether it finished, so the caller loops rather than risking one
@@ -14,7 +15,8 @@
  * They are `internalMutation` rather than `mutation` on purpose. These wipe the
  * database; exposing them as public functions would put "delete everything" on
  * the public API of any app built from this template. The suite reaches them
- * with the local backend's admin key instead — see `apps/e2e-app/local-backend.ts`.
+ * with the local backend's admin key instead — see
+ * `packages/e2e-kit/src/convex/local-backend.ts`.
  *
  * THIS IS DESTRUCTIVE. It is only ever pointed at the local backend, and
  * `assertLocalBackendIdentity` runs before it to prove that backend is this

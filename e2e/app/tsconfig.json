@@ -12,5 +12,5 @@
     "declaration": false,
     "declarationMap": false
   },
-  "include": ["playwright.config.ts", "specs", "page-objects"]
+  "include": ["playwright.config.ts", "specs"]
 }

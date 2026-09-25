@@ -33,12 +33,15 @@ A premium, production-ready monorepo template for building high-performance, typ
 ```text
 ├── apps/
 │   ├── www/          # Next.js marketing site & landing pages
-│   ├── app/          # Vite React app (Capacitor-ready, runs on port 5173)
-│   └── e2e/          # Playwright end-to-end tests
+│   └── app/          # Vite React app (Capacitor-ready, runs on port 5173)
+├── e2e/
+│   ├── app/          # Playwright specs for apps/app
+│   └── www/          # Playwright specs for apps/www
 ├── packages/
 │   ├── api/          # Convex backend, schema, and shared business logic
 │   ├── ui/           # Shared high-performance UI components
 │   ├── analytics/    # Key-gated PostHog analytics provider
+│   ├── e2e-kit/      # Playwright harness: servers, Convex seed, page objects
 │   └── config/       # Shared TypeScript & Tailwind configurations
 └── docs/             # Project documentation and changelogs
 ```

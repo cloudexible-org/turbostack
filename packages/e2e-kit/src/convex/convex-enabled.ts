@@ -11,8 +11,8 @@
  * projects — which assert only statically-rendered chrome and client-side
  * behaviour — running on every push exactly as before.
  *
- * Shared by `playwright.config.ts` and `fixtures/global-setup.ts` so the two
- * can never disagree about whether a backend is expected.
+ * Shared by `defineAppSuite` and `global-setup.ts` so the two can never
+ * disagree about whether a backend is expected.
  */
 export function convexEnabled(): boolean {
   return process.env.E2E_CONVEX !== "0";

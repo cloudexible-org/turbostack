@@ -1,12 +1,19 @@
 /**
- * One run of a suite per checkout at a time.
+ * One run at a time per resource, per checkout.
  *
  * Separate git worktrees never contend — each has its own directory, so its own
- * lock, `.next-e2e`, and Convex database under `packages/api/.convex/`. Two runs
- * of the *same* suite in the *same* checkout do contend, and not loudly: they
- * share that database, and each run's global setup wipes and reseeds it while
- * the other's specs are asserting against it. The failures that follow look
- * like flaky tests. This turns them into one message naming the other run.
+ * locks, Next distDirs, and Convex database under `packages/api/.convex/`. Two
+ * runs in the *same* checkout can contend, and not loudly. A lock is taken for
+ * each thing a run would share with another:
+ *
+ *   - **The suite's own directory** (`<suite>/.e2e-run.lock`): its reports,
+ *     traces, and the Next distDir named after it. Two runs of one suite.
+ *   - **The Convex database** (`packages/api/.e2e-run.lock`): every suite that
+ *     seeds it — the e2e specs *and* a marketing capture — wipes and reseeds it
+ *     while the other's specs are reading it. Two different suites.
+ *
+ * The failures that follow look like flaky tests. This turns them into one
+ * message naming the other run.
  *
  * ─── Why the holder is recorded in the environment ──────────────────────────
  *
@@ -14,7 +21,8 @@
  * worker, and webServer commands are children of the runner too. All of them
  * inherit the runner's environment, so recording the holder's pid there lets
  * every descendant recognise the lock as its own run's instead of mistaking it
- * for a competitor — the same trick `stablePorts` uses to agree on ports.
+ * for a competitor — the same trick `stablePorts` uses to agree on ports. One
+ * variable serves every lock a run takes, since they all record the same pid.
  *
  * A lock left behind by a killed run is detected by its pid no longer being
  * alive, and taken over.
@@ -45,9 +53,16 @@ function readHolder(lockFile: string): number | null {
 
 /**
  * Takes `lockFile` for the lifetime of this process, or throws if another live
- * run of `suite` holds it. Safe to call from every evaluation of the config.
+ * run holds it. Safe to call from every evaluation of the config.
+ *
+ * `resource` names what the lock protects and `conflict` says what a second
+ * run would do to it; both go into the error the second run sees.
  */
-export function acquireRunLock(lockFile: string, suite: string): void {
+export function acquireRunLock(
+  lockFile: string,
+  resource: string,
+  conflict: string,
+): void {
   const inherited = Number(process.env[HOLDER_ENV]);
   if (inherited && readHolder(lockFile) === inherited) return;
 
@@ -61,11 +76,10 @@ export function acquireRunLock(lockFile: string, suite: string): void {
       if (holder === process.pid) return;
       if (holder !== null && isAlive(holder)) {
         throw new Error(
-          `Another ${suite} e2e run (pid ${holder}) is already running in this checkout.\n\n` +
-            "Runs of the same suite in one checkout share its Convex database and " +
-            "Next build directory, and each wipes the other's seed. Wait for it to " +
-            "finish, or run the suite from a different git worktree — worktrees " +
-            `never collide.\n\nIf pid ${holder} is not a Playwright run, delete ${lockFile}.`,
+          `Another Playwright run (pid ${holder}) is using ${resource} in this checkout.\n\n` +
+            `${conflict} Wait for it to finish, or run from a different git ` +
+            "worktree — worktrees never collide.\n\n" +
+            `If pid ${holder} is not a Playwright run, delete ${lockFile}.`,
         );
       }
       // Left behind by a run that was killed. Take it over.

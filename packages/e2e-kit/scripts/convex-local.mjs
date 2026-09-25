@@ -3,7 +3,7 @@
  * keeps it alive, watching for code changes — the backend the e2e suite talks
  * to.
  *
- *   pnpm --filter e2e-app convex:local
+ *   pnpm --filter @repo/e2e-kit convex:local
  *
  * Playwright starts this as a `webServer` for each run, on ports it allocated
  * (`E2E_CONVEX_CLOUD_PORT` / `E2E_CONVEX_SITE_PORT`), and stops it afterwards.
@@ -47,7 +47,7 @@ import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const BACKEND_DIR = path.join(__dirname, "..", "..", "..", "packages", "api");
+const BACKEND_DIR = path.join(__dirname, "..", "..", "api");
 const DEV_ENV_FILE = path.join(BACKEND_DIR, ".env.local");
 const LOCAL_CONFIG = path.join(
   BACKEND_DIR,
@@ -82,8 +82,8 @@ const sitePort = Number(process.env.E2E_CONVEX_SITE_PORT) || (await freePort());
  * seconds for it to exit, and dies with "A local backend is still running on
  * port 3210" (`ensureBackendStopped` in convex/dist/cli/lib/localDeployment/
  * run.js, 1.46.0). Pointing the record at our free pair makes that wait a
- * no-op. `playwright.config.ts` provisions the deployment before this runs, so
- * the file exists whenever the suite starts us.
+ * no-op. `defineAppSuite` provisions the deployment before this runs, so the
+ * file exists whenever a suite starts us.
  */
 if (fs.existsSync(LOCAL_CONFIG)) {
   const config = JSON.parse(fs.readFileSync(LOCAL_CONFIG, "utf-8"));
