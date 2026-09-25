@@ -20,12 +20,12 @@
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",
-    "@commitlint/cli": "^21.2.2",
-    "@commitlint/config-conventional": "^21.2.2",
+    "@commitlint/cli": "^21.2.3",
+    "@commitlint/config-conventional": "^21.2.3",
     "lefthook": "^2.1.14",
     "portless": "^0.15.6",
     "turbo": "latest",
-    "turbo-ignore": "^2.11.2",
+    "turbo-ignore": "^2.11.4",
     "typescript": "catalog:"
   },
   "pnpm": {
