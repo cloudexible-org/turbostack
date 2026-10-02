@@ -16,12 +16,15 @@ This document defines the core standards and automated workflows that any AI age
 * See `.scratch/README.md` for the full rundown.
 
 ## 3. Documentation & Changelog
-* **Automatic Logging:** Every time a new feature is implemented, a bug is fixed, or a breaking change is introduced, you must update `docs/changelog.md`.
-* **Entry Format:** Use [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format:
+* **Automatic Logging:** Every time a new feature is implemented, a bug is fixed, or a breaking change is introduced, add a **changelog fragment**: a new file `docs/changelog.d/<YYYY-MM-DD>-<branch-slug>.md` (today's date, then the branch name in kebab case, e.g. `2026-10-01-feat-group-threads.md`). **Never edit `docs/changelog.md` outside a release** — only the release step below writes it, and CI fails any other PR into `main` that touches it (unless the PR carries the `changelog-edit` label, e.g. to fix a typo in a released entry). One file per change means parallel PRs and worktrees never conflict over the changelog. To change an entry that hasn't been released yet, edit its fragment. Format and examples: [`docs/changelog.d/README.md`](docs/changelog.d/README.md).
+* **Entry Format:** A fragment is what the change would have added to the changelog, in [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format: one or more of these headings, each followed by `- ` entries, and nothing else:
     * `### Added` for new features.
     * `### Fixed` for bug fixes.
     * `### Changed` for refactors.
+    * (`### Deprecated`, `### Removed` and `### Security` also exist.)
 * **Context:** Include a brief description of *what* changed and *why*.
+* **Check it:** `pnpm lint` validates every fragment; `pnpm changelog:preview` prints what the next release will list.
+* **Releases:** A release is a PR into `main` from a `release/<version>` branch, the only branch allowed to edit `docs/changelog.md`. Its one commit (`chore(release): v<version>`) bumps the version in the root and every workspace `package.json` and runs `pnpm changelog:release <version>`, which writes every fragment into `docs/changelog.md` as `## [<version>] - <YYYY-MM-DD>` and deletes them. Cut one only when asked. See [`docs/changelog.d/README.md`](docs/changelog.d/README.md#releasing).
 
 ## 4. TypeScript & Type Safety
 * **No `any`:** The use of `any` is strictly prohibited. Use `unknown` if a type is truly dynamic, or define proper interfaces/types.

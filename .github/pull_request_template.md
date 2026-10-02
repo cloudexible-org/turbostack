@@ -16,7 +16,7 @@
 - [ ] `pnpm lint` passes
 - [ ] `pnpm typecheck` passes
 - [ ] `pnpm test` passes (unit; run e2e if relevant)
-- [ ] `docs/changelog.md` updated
+- [ ] Changelog fragment added in `docs/changelog.d/` (`docs/changelog.md` is written only at release)
 - [ ] Page objects / tests updated for new pages or UI
 
 ## Notes
