@@ -1,6 +1,6 @@
 name: CI
 
-# Validation only — lint, typecheck and build.
+# Validation only — lint (including the changelog guard), typecheck and build.
 # Deployment is handled by Vercel; this workflow builds to validate, not to deploy.
 # The build step exists because `typecheck` alone can pass while the build is
 # broken: `tsc` is a standalone binary, but Next drives the TypeScript compiler
@@ -33,6 +33,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          # On a pull request, HEAD is the merge into the base branch and
+          # HEAD^1 is the base, which the changelog guard diffs against.
+          fetch-depth: 2
 
       - name: Install pnpm
         # Version is read from the "packageManager" field in package.json.
@@ -49,6 +53,16 @@ jobs:
 
       - name: Lint
         run: pnpm lint
+
+      # Only a release writes docs/changelog.md; every other change adds a
+      # fragment to docs/changelog.d/, so parallel PRs never conflict on it.
+      # A PR that has to touch it anyway (a typo in a released entry) carries
+      # the `changelog-edit` label.
+      - name: Changelog guard
+        if: >-
+          github.event_name == 'pull_request' &&
+          !contains(github.event.pull_request.labels.*.name, 'changelog-edit')
+        run: node scripts/changelog/cli.mjs check --pr HEAD^1
 
       - name: Typecheck
         run: pnpm typecheck
