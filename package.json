@@ -24,10 +24,10 @@
     "@biomejs/biome": "catalog:",
     "@commitlint/cli": "^21.2.3",
     "@commitlint/config-conventional": "^21.2.3",
-    "lefthook": "^2.1.14",
-    "portless": "^0.15.6",
+    "lefthook": "^2.1.16",
+    "portless": "^0.15.7",
     "turbo": "latest",
-    "turbo-ignore": "^2.11.4",
+    "turbo-ignore": "^2.11.7",
     "typescript": "catalog:"
   },
   "pnpm": {
