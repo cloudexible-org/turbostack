@@ -53,7 +53,7 @@ A premium, production-ready monorepo template for building high-performance, typ
 - [Convex](https://convex.dev/) account
 - [Vercel](https://vercel.com/) account
 - [Clerk](https://clerk.com/) account (optional — only if you want auth)
-- Node.js 26 (see `.nvmrc` — e.g. `nvm use`)
+- Node.js 24 (see `.nvmrc` — e.g. `nvm use`)
 - [pnpm](https://pnpm.io/installation) (`npm install -g pnpm`)
 
 ### Quick Start
