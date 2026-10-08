@@ -15,6 +15,12 @@ updates:
         update-types:
           - minor
           - patch
+    ignore:
+      # The runtime is pinned to Node 24 (`.nvmrc`), so `@types/node` must stay
+      # on 24.x; a newer major would type APIs the runtime doesn't have.
+      - dependency-name: "@types/node"
+        update-types:
+          - version-update:semver-major
 
   # Action versions used in .github/workflows.
   - package-ecosystem: github-actions
