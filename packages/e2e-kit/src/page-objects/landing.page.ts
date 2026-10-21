@@ -105,7 +105,9 @@ export class LandingPage {
     return this.page.getByTestId("reveal");
   }
 
-  getSection(name: "stack-marquee" | "showcase" | "cta"): Locator {
+  getSection(
+    name: "stack-marquee" | "showcase" | "built-with" | "cta",
+  ): Locator {
     return this.page.getByTestId(name);
   }
 

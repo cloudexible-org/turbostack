@@ -15,8 +15,8 @@
  * `sr-only` is `position: absolute`, so it never affects layout.
  *
  * The exception is an image-only link, which needs an `aria-label` regardless
- * because it has no text to append to. Use the same wording there:
- * "<name> (opens in a new tab)".
+ * because it has no text to append to — see `BrowserFrame` in
+ * `components/landing/built-with.tsx`. Keep the wording identical there.
  */
 export function NewTabHint(): React.ReactNode {
   // The leading space keeps the computed name as "GitHub (opens in a new tab)"
