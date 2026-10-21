@@ -67,3 +67,6 @@ playwright-report/
 # Held by a running Playwright suite, in its own directory and in packages/api
 # for the Convex database; see packages/e2e-kit/src/run-lock.ts.
 .e2e-run.lock
+
+# Agent git worktrees (each is its own checkout, never part of this repo)
+.claude/worktrees/
