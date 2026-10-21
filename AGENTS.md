@@ -51,9 +51,9 @@ This document defines the core standards and automated workflows that any AI age
 * **Conventional Commits:** All commit messages must follow the [Conventional Commits](https://www.conventionalcommits.org/) specification (e.g., `feat: add user login`, `fix: resolve crash on startup`).
 
 ## 8. Forking This Template
-Turbostack is the template for new projects (e.g. `ballbyball`, `babybets`). When creating one, do all of the following so nothing has to be rediscovered. `git grep -in turbostack -- ':!docs/changelog.md'` lists every remaining reference; the checklist below says which ones matter.
+Turbostack is a template for new projects. When creating one, do all of the following so nothing has to be rediscovered. `git grep -in turbostack -- ':!docs/changelog.md'` lists every remaining reference; the checklist below says which ones matter.
 
-* **Repo & remotes:** Clone turbostack (keep full history) into `~/repos/<name>`, rename `origin` → `upstream`, then `gh repo create cloudexible-org/<name> --private --source . --remote origin --push`. Run `gh repo set-default cloudexible-org/<name>` — otherwise `gh` targets the `upstream` turbostack repo and issues/PRs land in the wrong place. Template updates are pulled later by merging `upstream/main`.
+* **Repo & remotes:** Clone turbostack (keep full history), rename `origin` → `upstream`, then `gh repo create cloudexible-org/<name> --private --source . --remote origin --push`. Run `gh repo set-default cloudexible-org/<name>` — otherwise `gh` targets the `upstream` turbostack repo and issues/PRs land in the wrong place. Template updates are pulled later by merging `upstream/main`.
 * **Rename (required — these affect behaviour):**
     * Root `package.json` `name`.
     * `doppler.yaml` project name, and the project named in `packages/api/.env.example`, `apps/app/.env.example`, `apps/www/.env.example`.

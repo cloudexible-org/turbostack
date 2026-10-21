@@ -1,4 +1,3 @@
-import { BuiltWith } from "@/components/landing/built-with";
 import { Cta } from "@/components/landing/cta";
 import { Features } from "@/components/landing/features";
 import { Hero } from "@/components/landing/hero";
@@ -18,7 +17,6 @@ export default function Home(): React.ReactNode {
         <StackMarquee />
         <Features />
         <Showcase />
-        <BuiltWith />
         <Cta />
       </main>
 
