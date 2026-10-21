@@ -50,6 +50,23 @@ This document defines the core standards and automated workflows that any AI age
 ## 7. Commit Standards
 * **Conventional Commits:** All commit messages must follow the [Conventional Commits](https://www.conventionalcommits.org/) specification (e.g., `feat: add user login`, `fix: resolve crash on startup`).
 
+## 8. Forking This Template
+Turbostack is the template for new projects (e.g. `ballbyball`, `babybets`). When creating one, do all of the following so nothing has to be rediscovered. `git grep -in turbostack -- ':!docs/changelog.md'` lists every remaining reference; the checklist below says which ones matter.
+
+* **Repo & remotes:** Clone turbostack (keep full history) into `~/repos/<name>`, rename `origin` → `upstream`, then `gh repo create cloudexible-org/<name> --private --source . --remote origin --push`. Run `gh repo set-default cloudexible-org/<name>` — otherwise `gh` targets the `upstream` turbostack repo and issues/PRs land in the wrong place. Template updates are pulled later by merging `upstream/main`.
+* **Rename (required — these affect behaviour):**
+    * Root `package.json` `name`.
+    * `doppler.yaml` project name, and the project named in `packages/api/.env.example`, `apps/app/.env.example`, `apps/www/.env.example`.
+    * Portless hosts in the `dev`/`storybook` scripts of `apps/app`, `apps/www`, `packages/ui` (`app.<name>`, `www.<name>`, `storybook.<name>`), plus `allowedDevOrigins` and its comment in `apps/www/next.config.ts`. Two checkouts sharing a host name collide in portless.
+    * The e2e backend identity ping `"turbostack-e2e"` → `"<name>-e2e"` in **both** `packages/api/convex/seed/e2e/mutations.ts` and `packages/e2e-kit/src/convex/local-backend.ts`. The harness uses it to confirm it is talking to *this* project's local backend before seeding (which wipes the database) — a fork left on the template's value can wipe a turbostack checkout's backend, and vice versa.
+* **Rename (branding):** `<h1>` in `apps/app/src/App.tsx` together with the heading in `packages/e2e-kit/src/page-objects/home.page.ts` and its mention in `docs/e2e-architecture.md`; `<title>` in `apps/app/index.html`; `.github/ISSUE_TEMPLATE/bug_report.yml`; the README header (say it was built from Turbostack) and its `cd turbostack` / Doppler / `.localhost` mentions.
+* **Template-specific, decide per fork:** the `apps/www` landing copy, `layout.tsx`/`manifest.ts` metadata and site nav are Turbostack's own marketing (and `e2e/www/specs/landing.spec.ts` + `landing.page.ts` assert on it) — rewrite them with the fork's real site, or remove `apps/www` + `e2e/www` if the fork has no marketing site. `docker-compose.yml` and `.gitlab-ci.yml` point at turbostack's tailnet host; rename or delete. Clerk and Vercel config stay unless the fork chooses otherwise.
+* **Doppler:** Create a project named `<name>` with dev configs `dev_api`, `dev_app`, `dev_www` (the free plan caps a workplace at 10 projects, hence one project with per-package configs), then run `pnpm setup:envs`.
+* **Convex:** The Convex project is created in the dashboard. Put a **dev deploy key** in `dev_api` as `CONVEX_DEPLOY_KEY`, and the dev deployment URL in `dev_app` as `VITE_CONVEX_URL` and `dev_www` as `NEXT_PUBLIC_CONVEX_URL`. Production keys go to the hosting provider (Vercel), not Doppler. Have the user enter secrets themselves (`doppler secrets set <KEY> --project <name> --config <config>`) rather than pasting them into chat.
+* **Changelog:** Add a fragment describing the fork. Keep `docs/changelog.md`'s turbostack history; the fork's version continues from it.
+* **Verify:** `pnpm install`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e:app`, `pnpm test:e2e:www` — the renamed heading, page object and identity ping are all exercised by the e2e suites.
+* **In the fork,** replace this section with a short note that it was created from Turbostack, so its agents don't treat the fork as the template.
+
 <!-- convex-ai-start -->
 
 This project uses [Convex](https://convex.dev) as its backend.
