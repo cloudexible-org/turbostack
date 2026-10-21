@@ -6,10 +6,9 @@
  *
  * CI sets `E2E_CONVEX=0`. Starting a Convex local backend there would mean
  * downloading the backend binary and provisioning a deployment on a cold runner
- * for every push, and the sibling project this harness came from does not run
- * its Convex suite in CI at all. Turning it off keeps the `app` and `www`
- * projects — which assert only statically-rendered chrome and client-side
- * behaviour — running on every push exactly as before.
+ * for every push. Turning it off keeps the `app` and `www` projects — which
+ * assert only statically-rendered chrome and client-side behaviour — running
+ * on every push exactly as before.
  *
  * Shared by `defineAppSuite` and `global-setup.ts` so the two can never
  * disagree about whether a backend is expected.

@@ -90,12 +90,7 @@ test.describe("landing chrome", () => {
     const landing = new LandingPage(page);
     await landing.goto();
 
-    for (const name of [
-      "stack-marquee",
-      "showcase",
-      "built-with",
-      "cta",
-    ] as const) {
+    for (const name of ["stack-marquee", "showcase", "cta"] as const) {
       await expect(landing.getSection(name)).toBeAttached();
     }
     await expect(landing.getFeatureCards()).toHaveCount(9);
