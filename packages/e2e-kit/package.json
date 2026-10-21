@@ -20,7 +20,7 @@
     "@playwright/test": "^1.63.0"
   },
   "devDependencies": {
-    "@playwright/test": "^1.63.0",
+    "@playwright/test": "^1.64.1",
     "@repo/config": "workspace:*",
     "@types/node": "catalog:",
     "typescript": "catalog:"
