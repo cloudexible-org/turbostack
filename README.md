@@ -12,7 +12,7 @@ A premium, production-ready monorepo template for building high-performance, typ
 - ⚡ **Reactive Backend** - **Convex** for a 100% type-safe, real-time backend and database.
 - 🔐 **Optional Auth** - **Clerk** integration for user management — fully optional; the stack runs auth-free when Clerk env vars are unset.
 - 🛠️ **Unified Toolchain** - **Biome** for lightning-fast linting and formatting.
-- 📈 **Analytics** - **Vercel Analytics** plus a key-gated **PostHog** package (`@repo/analytics`) for product analytics; every event is stamped with `product` and `surface` so products can share one PostHog project.
+- 📈 **Analytics** - A key-gated **PostHog** package (`@repo/analytics`) for product analytics; every event is stamped with `product` and `surface` so products can share one PostHog project.
 - 🧰 **DX & Safety** - Typed/validated env (`@t3-oss/env`), Portless named `.localhost` dev URLs, git hooks (Biome + commitlint), and GitHub Actions CI.
 
 ## 🛠️ Tech Stack
@@ -25,7 +25,7 @@ A premium, production-ready monorepo template for building high-performance, typ
 - **Auth:** [Clerk](https://clerk.com/)
 - **Toolchain:** [Biome](https://biomejs.dev/)
 - **Styling:** [Tailwind CSS v4](https://tailwindcss.com/), [shadcn/ui](https://ui.shadcn.com/), [Base UI](https://base-ui.com/)
-- **Analytics:** [Vercel Analytics](https://vercel.com/analytics) + [PostHog](https://posthog.com/)
+- **Analytics:** [PostHog](https://posthog.com/)
 - **Testing:** [Playwright](https://playwright.dev/) (E2E), [Vitest](https://vitest.dev/) + Storybook (component/unit)
 
 ## 📁 Project Structure
