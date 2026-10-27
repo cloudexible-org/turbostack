@@ -43,6 +43,9 @@ export default function RootLayout({
           <AnalyticsProvider
             apiKey={env.NEXT_PUBLIC_POSTHOG_KEY}
             apiHost={env.NEXT_PUBLIC_POSTHOG_HOST}
+            // Product name in the shared PostHog project: forks rename it (AGENTS.md §8).
+            product="turbostack"
+            surface="www"
           >
             <ConvexClientProvider>
               <MotionProvider>{children}</MotionProvider>
