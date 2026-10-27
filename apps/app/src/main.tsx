@@ -33,6 +33,9 @@ createRoot(rootElement).render(
     <AnalyticsProvider
       apiKey={env.VITE_POSTHOG_KEY}
       apiHost={env.VITE_POSTHOG_HOST}
+      // Product name in the shared PostHog project: forks rename it (AGENTS.md §8).
+      product="turbostack"
+      surface="app"
     >
       <ConvexProvider client={convex}>
         <App />
