@@ -1,5 +1,4 @@
 import { AnalyticsProvider } from "@repo/analytics";
-import { Analytics } from "@vercel/analytics/react";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { MotionProvider } from "@/components/motion-provider";
@@ -51,7 +50,6 @@ export default function RootLayout({
               <MotionProvider>{children}</MotionProvider>
             </ConvexClientProvider>
           </AnalyticsProvider>
-          <Analytics />
         </ThemeProvider>
       </body>
     </html>
