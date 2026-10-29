@@ -37,7 +37,7 @@ export class HomePage {
   // --- Convex-backed surfaces ---------------------------------------------
   //
   // Only meaningful when the suite runs against a seeded local backend (the
-  // `app-convex` project). With the CI placeholder URL the query never
+  // `app-convex` project). With the placeholder URL the query never
   // resolves and the list stays on "Loading…" forever.
 
   /** One `<li>` per message. Also matches the loading and empty placeholders. */

@@ -7,8 +7,8 @@ name: CI
 # broken: `tsc` is a standalone binary, but Next drives the TypeScript compiler
 # API programmatically, so a compiler that fails to load breaks the build while
 # leaving typecheck green.
-# Unit tests (@repo/ui Storybook stories) run in a real browser and are run
-# locally via `pnpm test`, not in CI.
+# Unit tests (@repo/ui Storybook stories) and the e2e suites run in a real
+# browser and are run locally via `pnpm test` and `pnpm test:e2e`, not in CI.
 on:
   push:
     branches: [main]
@@ -76,57 +76,3 @@ jobs:
           # prerendering never opens a connection. Everything else the apps read
           # is optional and is skipped when absent.
           NEXT_PUBLIC_CONVEX_URL: https://ci-build-placeholder.convex.cloud
-
-  e2e:
-    # One job per suite, so they run in parallel and a failure names its app.
-    name: e2e (${{ matrix.suite }})
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        suite: [app, www]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v6
-
-      - name: Setup Node
-        uses: actions/setup-node@v7
-        with:
-          node-version-file: .nvmrc
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Install Playwright browsers
-        # Only chromium — every project uses Desktop Chrome.
-        run: pnpm --filter e2e-${{ matrix.suite }} exec playwright install --with-deps chromium
-
-      - name: E2E
-        run: pnpm test:e2e:${{ matrix.suite }}
-        env:
-          # No Convex local backend in CI. Starting one means downloading the
-          # backend binary and provisioning a deployment on a cold runner for
-          # every push. With this off, e2e-app's `app` project still runs — it
-          # asserts only statically-rendered chrome and client-side behaviour —
-          # and the `app-convex` project, which needs real seeded data, is not
-          # registered at all. Run it locally with `pnpm test:e2e:app`.
-          #
-          # No Convex URLs are needed: both configs set a well-formed
-          # placeholder on their dev server, which nothing connects to. The
-          # Clerk and PostHog keys are deliberately NOT set: both apps treat
-          # them as optional and skip those surfaces entirely when absent, and
-          # no spec may depend on them.
-          E2E_CONVEX: "0"
-
-      - name: Upload report
-        # Only useful when something failed; the run is otherwise silent.
-        if: failure()
-        uses: actions/upload-artifact@v7
-        with:
-          name: playwright-report-${{ matrix.suite }}
-          path: e2e/${{ matrix.suite }}/playwright-report/
-          retention-days: 7

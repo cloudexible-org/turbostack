@@ -85,7 +85,7 @@ pnpm test:e2e                              # both suites
 pnpm test:e2e:app                          # e2e/app: app + app-convex
 pnpm test:e2e:www                          # e2e/www
 pnpm --filter e2e-app exec playwright test --project=app
-E2E_CONVEX=0 pnpm test:e2e:app             # skip the backend (how CI runs)
+E2E_CONVEX=0 pnpm test:e2e:app             # skip the backend
 pnpm --filter @repo/e2e-kit convex:local   # just the backend, for poking at data
 ```
 
@@ -103,9 +103,9 @@ is the only one that is disposable. It is also anonymous — no Convex account �
 so anyone who clones this template can run the suite.
 
 `E2E_CONVEX=0` drops the backend, its webServer and the `app-convex` project.
-CI sets it: provisioning a backend on a cold runner for every push is not worth
-it, and the `app` and `www` projects assert only statically-rendered chrome and
-client-side behaviour, so they still run there.
+Use it for a quick run that doesn't need seeded data: the `app` and `www`
+projects assert only statically-rendered chrome and client-side behaviour, so
+they still run. The suites are run locally only; GitHub CI does not run e2e.
 
 ### The port is chosen per run, and a wrong one can wipe another database
 
@@ -318,17 +318,18 @@ the fix only holds while the reasoning is visible.
    serves the report and blocks the process, hanging any non-interactive run.
 
 5. ~~**No execution path.**~~ **Fixed 2026-07-28.** Root now has
-   `test:e2e` (`turbo test --filter=e2e`), and `.github/workflows/ci.yml` has a
-   dedicated `e2e` job running it on every push and PR. `pnpm test` still
+   `test:e2e` (`turbo test --filter=e2e`), run locally (GitHub CI ran it on
+   every push and PR until 2026-10-29, when e2e moved to local runs only to
+   keep CI fast). `pnpm test` still
    excludes the suite, so the unit-test loop stays fast. The `e2e#test` turbo
    task is `cache: false` on purpose — `e2e` does not depend on `app` in the
    workspace graph, so apps/app's sources are absent from the task hash and a
    cached pass would survive a UI regression.
 
-**Standing constraint:** CI supplies `VITE_CONVEX_URL` as a *placeholder* that
-never connects, so every spec must pass with the backend unreachable — assert
-only on statically-rendered chrome. Pointing CI at a real deployment is a
-prerequisite for any spec that reads or writes messages, along with the
+**Standing constraint:** with `E2E_CONVEX=0`, `VITE_CONVEX_URL` is a
+*placeholder* that never connects, so every spec in the `app` project must pass
+with the backend unreachable — assert only on statically-rendered chrome. A
+spec that reads or writes messages belongs in `app-convex`, under the
 namespacing rules in §8.
 
 ---
