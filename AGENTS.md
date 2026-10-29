@@ -50,7 +50,10 @@ This document defines the core standards and automated workflows that any AI age
 ## 7. Commit Standards
 * **Conventional Commits:** All commit messages must follow the [Conventional Commits](https://www.conventionalcommits.org/) specification (e.g., `feat: add user login`, `fix: resolve crash on startup`).
 
-## 8. Forking This Template
+## 8. Branches & Environments
+* **`main` deploys staging, `prod` deploys production.** Changes reach `main` through pull requests, and production is promoted with a PR from `main` into `prod`. Never commit or push to either branch directly. Environments, domains, variables and how to set staging up: [`docs/infrastructure.md`](docs/infrastructure.md).
+
+## 9. Forking This Template
 Turbostack is a template for new projects. When creating one, do all of the following so nothing has to be rediscovered. `git grep -in turbostack -- ':!docs/changelog.md'` lists every remaining reference; the checklist below says which ones matter.
 
 * **Repo & remotes:** Clone turbostack (keep full history), rename `origin` → `upstream`, then `gh repo create cloudexible-org/<name> --private --source . --remote origin --push`. Run `gh repo set-default cloudexible-org/<name>` — otherwise `gh` targets the `upstream` turbostack repo and issues/PRs land in the wrong place. Template updates are pulled later by merging `upstream/main`.
@@ -64,6 +67,7 @@ Turbostack is a template for new projects. When creating one, do all of the foll
 * **Template-specific, decide per fork:** the `apps/www` landing copy, `layout.tsx`/`manifest.ts` metadata and site nav are Turbostack's own marketing (and `e2e/www/specs/landing.spec.ts` + `landing.page.ts` assert on it) — rewrite them with the fork's real site, or remove `apps/www` + `e2e/www` if the fork has no marketing site. `docker-compose.yml` and `.gitlab-ci.yml` point at turbostack's tailnet host; rename or delete. Clerk and Vercel config stay unless the fork chooses otherwise.
 * **Doppler:** Create a project named `<name>` with dev configs `dev_api`, `dev_app`, `dev_www` (the free plan caps a workplace at 10 projects, hence one project with per-package configs), then run `pnpm setup:envs`.
 * **Convex:** The Convex project is created in the dashboard. Put a **dev deploy key** in `dev_api` as `CONVEX_DEPLOY_KEY`, and the dev deployment URL in `dev_app` as `VITE_CONVEX_URL` and `dev_www` as `NEXT_PUBLIC_CONVEX_URL`. Production keys go to the hosting provider (Vercel), not Doppler. Have the user enter secrets themselves (`doppler secrets set <KEY> --project <name> --config <config>`) rather than pasting them into chat.
+* **Staging & production:** Follow "Setting up staging" in `docs/infrastructure.md` once the fork's Vercel projects exist: a dev-type Convex `staging` deployment, a `staging` custom environment and Production Branch `prod` on each Vercel project, a `prod` branch, and the `VERCEL_TOKEN` secret plus `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID_APP`, `VERCEL_PROJECT_ID_WWW` repository variables. Then replace the environment table in `docs/infrastructure.md` with the fork's own domains and project names. Until the variables are set, the staging workflow skips with a notice rather than failing.
 * **Changelog:** Add a fragment describing the fork. Keep `docs/changelog.md`'s turbostack history; the fork's version continues from it.
 * **Verify:** `pnpm install`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm test:e2e:app`, `pnpm test:e2e:www` — the renamed heading, page object and identity ping are all exercised by the e2e suites.
 * **In the fork,** replace this section with a short note that it was created from Turbostack, so its agents don't treat the fork as the template.

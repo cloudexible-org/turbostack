@@ -1,0 +1,112 @@
+name: Deploy staging
+
+# Deploys `main` to each Vercel project's `staging` custom environment.
+#
+# Vercel's Git integration deploys only `prod` (`apps/*/vercel.json`): it
+# refuses a commit whose Git author isn't on the Vercel team, so a PR from
+# @cloudexible-juno would never reach staging. A CLI deployment belongs to
+# whoever owns the token instead, so this workflow deploys `main` with one.
+# See docs/infrastructure.md.
+#
+# Configured per repository, so the template carries no IDs:
+#   secret   VERCEL_TOKEN            a team member's Vercel token, scoped to the team
+#   variable VERCEL_ORG_ID           the Vercel team ID (team_…)
+#   variable VERCEL_PROJECT_ID_APP   the apps/app project (prj_…)
+#   variable VERCEL_PROJECT_ID_WWW   the apps/www project (prj_…)
+# Until they are set, each job skips with a notice instead of failing, so a
+# fresh fork's pushes to main stay green.
+on:
+  push:
+    branches: [main]
+  # Deploys the chosen branch's head regardless of what changed.
+  workflow_dispatch:
+
+# Queue rather than cancel: a cancelled job leaves its Vercel build running
+# anyway. GitHub keeps only the newest pending run, so a burst of merges
+# deploys once more, not once per merge.
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy apps/${{ matrix.package }} to staging
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      # One app's failed build shouldn't stop the other from deploying.
+      fail-fast: false
+      matrix:
+        include:
+          - package: app
+            project-id: ${{ vars.VERCEL_PROJECT_ID_APP }}
+          - package: www
+            project-id: ${{ vars.VERCEL_PROJECT_ID_WWW }}
+    env:
+      VERCEL_ORG_ID: ${{ vars.VERCEL_ORG_ID }}
+
+    steps:
+      - name: Check configuration
+        id: config
+        env:
+          HAS_TOKEN: ${{ secrets.VERCEL_TOKEN != '' }}
+          PROJECT_ID: ${{ matrix.project-id }}
+        run: |
+          if [ "$HAS_TOKEN" = true ] && [ -n "$VERCEL_ORG_ID" ] && [ -n "$PROJECT_ID" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::Staging isn't configured for apps/${{ matrix.package }}; skipping. See docs/infrastructure.md."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout
+        if: steps.config.outputs.ready == 'true'
+        uses: actions/checkout@v7
+        with:
+          # The change check diffs against the commit before this push.
+          fetch-depth: 0
+
+      - name: Setup Node
+        if: steps.config.outputs.ready == 'true'
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      # Skips the deploy when no input of this app's build, or of a build it
+      # depends on, changed in this push. Only a clean answer of "none" skips:
+      # if the query fails, it deploys.
+      - name: Check for changes
+        id: changes
+        if: steps.config.outputs.ready == 'true' && github.event_name == 'push'
+        env:
+          BEFORE: ${{ github.event.before }}
+          PACKAGE: ${{ matrix.package }}
+        run: |
+          if count=$(npx -y turbo@2.11.10 query affected --packages "$PACKAGE" --tasks build --base "$BEFORE" | jq -e '.data.affectedTasks.length') \
+            && [ "$count" -eq 0 ]; then
+            echo "Nothing $PACKAGE depends on changed; skipping."
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Uploads the repo and builds on Vercel, where the staging environment's
+      # variables (CONVEX_DEPLOY_KEY included) are in scope. The project's Root
+      # Directory (apps/<package>) applies, so it runs from the repo root.
+      #
+      # It uploads a `git archive` of the commit, not the checkout: given a
+      # `.git`, the CLI sends the commit's metadata along, and Vercel then
+      # blocks the deployment when the commit's author isn't on the team,
+      # token or not. The CLI doesn't notice and waits on "Building…" until the
+      # job times out.
+      - name: Deploy
+        if: steps.config.outputs.ready == 'true' && (github.event_name != 'push' || steps.changes.outputs.deploy == 'true')
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: ${{ matrix.project-id }}
+        run: |
+          src="$RUNNER_TEMP/src"
+          mkdir -p "$src"
+          git archive HEAD | tar -x -C "$src"
+          cd "$src"
+          npx -y vercel@60.1.1 deploy --target=staging --archive=tgz --yes --token="$VERCEL_TOKEN"
