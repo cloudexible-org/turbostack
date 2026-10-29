@@ -8,7 +8,7 @@
  * suite is only trustworthy on a fresh seed.
  *
  * When `E2E_CONVEX=0` there is no backend and nothing to seed; the remaining
- * specs assert only statically-rendered chrome. That is how CI runs.
+ * specs assert only statically-rendered chrome.
  *
  * Every suite built with `defineAppSuite` runs this — the e2e specs and any
  * marketing capture alike — so they all start from the same seeded world.

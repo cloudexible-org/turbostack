@@ -4,11 +4,9 @@
  * On by default, because locally that is the point — the `app-convex` project
  * drives `apps/app` against a real, seeded backend.
  *
- * CI sets `E2E_CONVEX=0`. Starting a Convex local backend there would mean
- * downloading the backend binary and provisioning a deployment on a cold runner
- * for every push. Turning it off keeps the `app` and `www` projects — which
- * assert only statically-rendered chrome and client-side behaviour — running
- * on every push exactly as before.
+ * `E2E_CONVEX=0` skips the backend for a quick run that doesn't need seeded
+ * data. The `app` and `www` projects — which assert only statically-rendered
+ * chrome and client-side behaviour — still run.
  *
  * Shared by `defineAppSuite` and `global-setup.ts` so the two can never
  * disagree about whether a backend is expected.

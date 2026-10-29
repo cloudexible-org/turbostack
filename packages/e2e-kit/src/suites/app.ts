@@ -19,8 +19,8 @@ export type AppSuiteContext = {
   /** Where this run serves `apps/app`. */
   baseURL: string;
   /**
-   * Whether this run has a seeded local Convex backend. Off when `E2E_CONVEX=0`
-   * (CI); register backend-dependent projects only when it is on.
+   * Whether this run has a seeded local Convex backend. Off when `E2E_CONVEX=0`;
+   * register backend-dependent projects only when it is on.
    */
   withConvex: boolean;
 };
