@@ -3,7 +3,7 @@
   "git": {
     "deploymentEnabled": {
       "**": false,
-      "main": true
+      "prod": true
     }
   },
   "buildCommand": "cd ../../packages/api && npx convex deploy --cmd \"cd ../.. && turbo build --filter=app\" --cmd-url-env-var-name VITE_CONVEX_URL",

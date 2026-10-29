@@ -130,6 +130,8 @@ To sync Clerk auth with your Convex backend:
 
 ## 🚢 Deployment
 
+`main` deploys to staging and `prod` deploys to production. Environments, domains, variables and how to set staging up are in [docs/infrastructure.md](./docs/infrastructure.md). The steps below are for setting up a Vercel project from scratch.
+
 ### Vercel (Full Stack)
 
 1. **Create Vercel Project:**

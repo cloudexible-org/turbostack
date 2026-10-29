@@ -1,7 +1,8 @@
 name: CI
 
 # Validation only — lint (including the changelog guard), typecheck and build.
-# Deployment is handled by Vercel; this workflow builds to validate, not to deploy.
+# Deployment is handled elsewhere (see docs/infrastructure.md): this workflow
+# builds to validate, not to deploy.
 # The build step exists because `typecheck` alone can pass while the build is
 # broken: `tsc` is a standalone binary, but Next drives the TypeScript compiler
 # API programmatically, so a compiler that fails to load breaks the build while
