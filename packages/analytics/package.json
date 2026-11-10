@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "posthog-js": "^1.444.0",
+    "posthog-js": "^1.447.3",
     "react": "catalog:"
   },
   "devDependencies": {
