@@ -26,9 +26,9 @@
     "@commitlint/config-conventional": "^21.2.4",
     "@types/node": "catalog:",
     "lefthook": "^2.2.2",
-    "portless": "^0.16.0",
+    "portless": "^0.17.0",
     "turbo": "latest",
-    "turbo-ignore": "^2.11.10",
+    "turbo-ignore": "^2.11.11",
     "typescript": "catalog:"
   },
   "pnpm": {
