@@ -16,6 +16,8 @@ export const env = createEnv({
     VITE_CLERK_PUBLISHABLE_KEY: z.string().min(1).optional(),
     // PostHog analytics — provider is skipped entirely when the key is absent.
     VITE_POSTHOG_KEY: z.string().min(1).optional(),
+    // Defaults to US cloud, the region `vercel.json` relays to. Another host
+    // works, but production then sends to it directly, without the relay.
     VITE_POSTHOG_HOST: z.url().optional(),
   },
   runtimeEnv: import.meta.env,

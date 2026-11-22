@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "typecheck": "tsc -b",
     "preview": "vite preview",
-    "lint": "biome check ."
+    "lint": "biome check .",
+    "test": "vitest run"
   },
   "dependencies": {
     "@repo/analytics": "workspace:*",
@@ -30,6 +31,7 @@
     "postcss": "catalog:",
     "tailwindcss": "catalog:",
     "typescript": "catalog:",
-    "vite": "^8.3.6"
+    "vite": "^8.3.6",
+    "vitest": "^5.1.0"
   }
 }

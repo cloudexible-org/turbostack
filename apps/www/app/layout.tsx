@@ -1,4 +1,6 @@
 import { AnalyticsProvider } from "@repo/analytics";
+// The server-safe entry: the package root is a client module.
+import { posthogHosts, RELAY_PATH } from "@repo/analytics/hosts";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { MotionProvider } from "@/components/motion-provider";
@@ -41,7 +43,10 @@ export default function RootLayout({
         >
           <AnalyticsProvider
             apiKey={env.NEXT_PUBLIC_POSTHOG_KEY}
-            apiHost={env.NEXT_PUBLIC_POSTHOG_HOST}
+            // Relayed through this origin (next.config.ts) so ad blockers
+            // don't drop events; the toolbar still links to PostHog itself.
+            apiHost={RELAY_PATH}
+            uiHost={posthogHosts(env.NEXT_PUBLIC_POSTHOG_HOST).ui}
             // Product name in the shared PostHog project: forks rename it (AGENTS.md §8).
             product="turbostack"
             surface="www"

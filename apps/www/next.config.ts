@@ -1,3 +1,5 @@
+// The import-free entry: `next.config.ts` loads before any bundler is involved.
+import { relayRewrites } from "@repo/analytics/hosts";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
@@ -28,6 +30,13 @@ const nextConfig: NextConfig = {
   // Unset everywhere else, so dev, CI, Docker and Vercel all use `.next`.
   distDir: process.env.NEXT_DIST_DIR || ".next",
   transpilePackages: ["@repo/ui", "@repo/api"],
+  // PostHog is relayed through this app's own origin at `RELAY_PATH`, so
+  // the ad blockers that block `*.posthog.com` don't hide ad conversions. See
+  // `packages/analytics/src/hosts.ts`. PostHog's endpoints end in a slash,
+  // which Next would otherwise redirect away.
+  skipTrailingSlashRedirect: true,
+  rewrites: async () =>
+    relayRewrites(process.env.NEXT_PUBLIC_POSTHOG_HOST || undefined),
   // `pnpm dev` serves this app through portless at https://www.turbostack.localhost,
   // which Next treats as cross-origin: it blocks /_next dev resources (including the
   // HMR client) from any unlisted host, so the page ships HTML but never hydrates.

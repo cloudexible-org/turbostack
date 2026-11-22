@@ -7,5 +7,19 @@
     }
   },
   "buildCommand": "cd ../../packages/api && npx convex deploy --cmd \"cd ../.. && turbo build --filter=app\" --cmd-url-env-var-name VITE_CONVEX_URL",
-  "ignoreCommand": "cd ../.. && npx turbo-ignore app"
+  "ignoreCommand": "cd ../.. && npx turbo-ignore app",
+  "rewrites": [
+    {
+      "source": "/relay/static/:path(.*)",
+      "destination": "https://us-assets.i.posthog.com/static/:path"
+    },
+    {
+      "source": "/relay/array/:path(.*)",
+      "destination": "https://us-assets.i.posthog.com/array/:path"
+    },
+    {
+      "source": "/relay/:path(.*)",
+      "destination": "https://us.i.posthog.com/:path"
+    }
+  ]
 }

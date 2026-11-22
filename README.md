@@ -12,7 +12,7 @@ A premium, production-ready monorepo template for building high-performance, typ
 - ⚡ **Reactive Backend** - **Convex** for a 100% type-safe, real-time backend and database.
 - 🔐 **Optional Auth** - **Clerk** integration for user management — fully optional; the stack runs auth-free when Clerk env vars are unset.
 - 🛠️ **Unified Toolchain** - **Biome** for lightning-fast linting and formatting.
-- 📈 **Analytics** - A key-gated **PostHog** package (`@repo/analytics`) for product analytics; every event is stamped with `product` and `surface` so products can share one PostHog project.
+- 📈 **Analytics** - A key-gated **PostHog** package (`@repo/analytics`) for product analytics; every event is stamped with `product` and `surface` so products can share one PostHog project. Events go through a same-origin relay (`/relay`) so ad blockers don't hide conversions, signed-in Clerk users are identified (with a `user_signed_up` lead event), and `apps/www/lib/analytics.ts` is the typed catalog of custom events.
 - 🧰 **DX & Safety** - Typed/validated env (`@t3-oss/env`), Portless named `.localhost` dev URLs, git hooks (Biome + commitlint), and GitHub Actions CI.
 
 ## 🛠️ Tech Stack
